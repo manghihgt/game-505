@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MATH MASTER | Premium Online</title>
+    <title>MATH MASTER | Advanced P2P Edition</title>
     <!-- Dependencies from CDN -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -159,14 +159,16 @@
             }
         }
 
-        .hero-glow {
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: var(--primary);
-            filter: blur(120px);
-            opacity: 0.2;
-            pointer-events: none;
+        .formula-box {
+            background: rgba(99, 102, 241, 0.1);
+            border-left: 4px solid var(--primary);
+            padding: 10px 20px;
+            border-radius: 0 10px 10px 0;
+            font-family: 'Space Grotesk', sans-serif;
+            font-style: italic;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            display: inline-block;
         }
 
         ::-webkit-scrollbar {
@@ -194,12 +196,15 @@
         // --- DATA & TRANSLATIONS ---
         const translations = {
             TH: {
-                navHome: "หน้าหลัก", navAbout: "เกี่ยวกับพวกเรา", title: "MATH MASTER", subtitle: "ระบบเกมคณิตศาสตร์พรีเมียม P2P",
+                navHome: "หน้าหลัก", navAbout: "เกี่ยวกับพวกเรา", navMusic: "เปิดเพลง", title: "MATH MASTER", subtitle: "ระบบสูตรเลขลำดับและเรขาคณิต P2P",
                 start: "เริ่มต้นความมันส์", language: "ภาษา TH", nickname: "ระบุชื่อเล่นของคุณ", hostBtn: "เปิดห้องใหม่",
                 joinBtn: "เข้าร่วมเล่น", roomID: "รหัส PIN (4 หลัก)", waiting: "กำลังรอทุกคน...", startHost: "ปล่อยตัว!",
                 copy: "คัดลอกรหัส", players: "นักสู้เลข", question: "โจทย์ที่", answered: "ส่งคำตอบแล้ว",
                 scoreboard: "กระดานเกียรติยศ", nextSub: "สงครามครั้งถัดไปกำลังมา...", champion: "สุดยอดแชมป์เปี้ยน!",
                 back: "กลับบ้าน",
+                arithmetic: "ลำดับเลขคณิต", geometric: "ลำดับเรขาคณิต",
+                formulaArith: "สูตรลำดับเลขคณิต: a_n = a_1 + (n-1)d",
+                formulaGeo: "สูตรลำดับเรขาคณิต: a_n = a_1 * r^(n-1)",
                 team: [
                     { name: "นายกรมิษฐิ์ อินดา", role: "Project Manager" },
                     { name: "นายนพกิจ สุรินทร์ต๊ะ", role: "UI Designer" },
@@ -209,12 +214,15 @@
                 ]
             },
             EN: {
-                navHome: "Home", navAbout: "About Us", title: "MATH MASTER", subtitle: "Premium P2P Mathematical Arena",
+                navHome: "Home", navAbout: "About Us", navMusic: "Music", title: "MATH MASTER", subtitle: "Arithmetic & Geometric P2P Arena",
                 start: "Enter Arena", language: "Language EN", nickname: "Enter Nickname", hostBtn: "HOST ARENA",
                 joinBtn: "JOIN ARENA", roomID: "PIN Code (4 digits)", waiting: "Waiting for warriors...", startHost: "Unleash!",
                 copy: "Copy PIN", players: "Mathematical Warriors", question: "Problem", answered: "Answered",
                 scoreboard: "HALL OF FAME", nextSub: "The next battle approaches...", champion: "ULTIMATE CHAMPION!",
                 back: "Go Home",
+                arithmetic: "Arithmetic Sequence", geometric: "Geometric Sequence",
+                formulaArith: "Arithmetic Formula: a_n = a_1 + (n-1)d",
+                formulaGeo: "Geometric Formula: a_n = a_1 * r^(n-1)",
                 team: [
                     { name: "Mr. Konmanit Inda", role: "Project Manager" },
                     { name: "Mr. Noppakit Surinta", role: "UI Designer" },
@@ -225,20 +233,55 @@
             }
         };
 
-        const generateQuestion = () => {
-            const a1 = Math.floor(Math.random() * 20) + 1;
-            const d = Math.floor(Math.random() * 10) + 2;
-            const seq = [a1, a1 + d, a1 + d * 2, a1 + d * 3, a1 + d * 4];
-            const missingIdx = Math.floor(Math.random() * 5);
-            const answer = seq[missingIdx];
-            const displaySeq = [...seq];
-            displaySeq[missingIdx] = '___';
-            const options = new Set([answer]);
-            while (options.size < 4) {
-                const off = (Math.floor(Math.random() * 10) + 1) * (Math.random() > 0.5 ? 1 : -1);
-                if (answer + off >= 0) options.add(answer + off);
+        const generateQuestion = (lang) => {
+            const isArithmetic = Math.random() > 0.5;
+            const tArray = translations[lang];
+
+            if (isArithmetic) {
+                const a1 = Math.floor(Math.random() * 20) + 1;
+                const d = Math.floor(Math.random() * 10) + 2;
+                const seq = [a1, a1 + d, a1 + d * 2, a1 + d * 3, a1 + d * 4];
+                const missingIdx = Math.floor(Math.random() * 5);
+                const answer = seq[missingIdx];
+                const displaySeq = [...seq];
+                displaySeq[missingIdx] = '___';
+
+                const options = new Set([answer]);
+                while (options.size < 4) {
+                    const off = (Math.floor(Math.random() * 10) + 1) * (Math.random() > 0.5 ? 1 : -1);
+                    if (answer + off >= 0) options.add(answer + off);
+                }
+                return {
+                    q: `${displaySeq.join(', ')}`,
+                    options: Array.from(options).sort(() => Math.random() - 0.5),
+                    answer,
+                    type: tArray.arithmetic,
+                    formula: tArray.formulaArith
+                };
+            } else {
+                const a1 = Math.floor(Math.random() * 5) + 1;
+                const r = Math.floor(Math.random() * 3) + 2;
+                const seq = [a1, a1 * r, a1 * Math.pow(r, 2), a1 * Math.pow(r, 3)];
+                const missingIdx = Math.floor(Math.random() * 4);
+                const answer = seq[missingIdx];
+                const displaySeq = [...seq];
+                displaySeq[missingIdx] = '___';
+
+                const options = new Set([answer]);
+                while (options.size < 4) {
+                    const off = (Math.floor(Math.random() * 10) + 1) * (Math.random() > 0.5 ? 1 : -1);
+                    const val = answer + off;
+                    if (val > 0 && !options.has(val)) options.add(val);
+                    else options.add(answer + Math.floor(Math.random() * 50) + 1);
+                }
+                return {
+                    q: `${displaySeq.join(', ')}`,
+                    options: Array.from(options).sort(() => Math.random() - 0.5),
+                    answer,
+                    type: tArray.geometric,
+                    formula: tArray.formulaGeo
+                };
             }
-            return { q: `${displaySeq.join(', ')}`, options: Array.from(options).sort(() => Math.random() - 0.5), answer };
         };
 
         function App() {
@@ -278,54 +321,36 @@
                 }
             }, []);
 
-            // Handle manual PIN hosting
             const startHost = () => {
                 if (!username) return alert('Enter nickname!');
                 const randomPin = Math.floor(1000 + Math.random() * 9000).toString();
                 const p = new Peer(`math-${randomPin}`);
-
                 p.on('open', id => {
-                    const cleanId = id.replace('math-', '');
-                    setPin(cleanId);
-                    setMyPeer(p);
-                    setConnected(true);
-                    setIsHost(true);
+                    setPin(id.replace('math-', ''));
+                    setMyPeer(p); setConnected(true); setIsHost(true);
                     const initPlayers = [{ id: 'me', name: username, score: 0 }];
-                    gameRef.current.players = initPlayers;
-                    setPlayers(initPlayers);
-                    setView('waiting');
+                    gameRef.current.players = initPlayers; setPlayers(initPlayers); setView('waiting');
                 });
-
-                p.on('error', (err) => {
-                    if (err.type === 'id-taken') startHost(); // Retry with new PIN
-                    else alert('Connection Error: ' + err.type);
-                });
-
+                p.on('error', (err) => err.type === 'id-taken' ? startHost() : alert(err.type));
                 p.on('connection', c => {
                     c.on('open', () => {
                         c.on('data', d => {
                             const g = gameRef.current;
                             if (d.type === 'join') {
                                 const p = { id: c.peer, name: d.name, score: 0 };
-                                g.players.push(p);
-                                setPlayers([...g.players]);
+                                g.players.push(p); setPlayers([...g.players]);
                                 hostBroadcast({ type: 'plist', p: g.players });
                             }
                             if (d.type === 'ans') {
                                 const p = g.players.find(x => x.id === c.peer);
                                 if (p && !p.ans) {
-                                    p.ans = true;
-                                    // CRITICAL FIX: Ensure currentIdx is correct
-                                    const currentQObj = g.questions[g.idx - 1];
-                                    if (d.v === currentQObj.answer) p.score += 1;
-                                    g.r++;
-                                    hostBroadcast({ type: 'aupd', r: g.r, t: g.players.length });
+                                    p.ans = true; if (d.v === g.questions[g.idx - 1].answer) p.score += 1;
+                                    g.r++; hostBroadcast({ type: 'aupd', r: g.r, t: g.players.length });
                                     if (g.r === g.players.length) { clearTimeout(g.tId); showLeaderboard(); }
                                 }
                             }
                         });
                         connsRef.current.push(c);
-                        // Send current list immediately to the newly connected person
                         c.send({ type: 'plist', p: gameRef.current.players });
                     });
                 });
@@ -333,14 +358,11 @@
 
             const joinRoom = () => {
                 if (!username || !roomCode) return alert('Enter nickname and PIN!');
-                const p = new Peer();
-                setMyPeer(p);
+                const p = new Peer(); setMyPeer(p);
                 p.on('open', () => {
-                    const c = p.connect(`math-${roomCode}`);
-                    hostConnRef.current = c;
+                    const c = p.connect(`math-${roomCode}`); hostConnRef.current = c;
                     c.on('open', () => { c.send({ type: 'join', name: username }); setView('waiting'); });
                     c.on('data', d => updateInternal(d));
-                    c.on('error', () => alert('Room not found!'));
                 });
             };
 
@@ -360,17 +382,16 @@
             const startGameHost = () => {
                 if (players.length < 2) return alert(t.waiting);
                 const g = gameRef.current;
-                g.questions = Array.from({ length: 10 }, () => generateQuestion());
-                g.idx = 0;
-                sendNext();
+                g.questions = Array.from({ length: 15 }, () => generateQuestion(lang)); // Increased to 15 for variety
+                g.idx = 0; sendNext();
             };
 
             const sendNext = () => {
                 const g = gameRef.current;
-                if (g.idx < 10) {
+                if (g.idx < 10) { // Keep 10 questions per game
                     g.r = 0; g.players.forEach(x => x.ans = false);
                     const qData = g.questions[g.idx];
-                    hostBroadcast({ type: 'nextq', q: qData.q, opts: qData.options, n: g.idx + 1, total_players: g.players.length });
+                    hostBroadcast({ type: 'nextq', q: qData.q, opts: qData.options, n: g.idx + 1, total_players: g.players.length, formula: qData.formula, qType: qData.type });
                     g.idx++; g.tId = setTimeout(showLeaderboard, 30500);
                 } else {
                     hostBroadcast({ type: 'gov', rank: [...g.players].sort((a, b) => b.score - a.score).slice(0, 5) });
@@ -386,17 +407,14 @@
                 setHasAnswered(true);
                 if (isHost) {
                     const g = gameRef.current; const p = g.players.find(x => x.id === 'me');
-                    p.ans = true;
-                    if (v === g.questions[g.idx - 1].answer) p.score += 1;
+                    p.ans = true; if (v === g.questions[g.idx - 1].answer) p.score += 1;
                     g.r++; hostBroadcast({ type: 'aupd', r: g.r, t: g.players.length });
                     if (g.r === g.players.length) { clearTimeout(g.tId); showLeaderboard(); }
                 } else hostConnRef.current.send({ type: 'ans', v });
             };
 
             useEffect(() => {
-                const peerInit = new Peer();
-                peerInit.on('open', () => { setConnected(true); peerInit.destroy(); });
-                return () => peerInit.destroy();
+                const p = new Peer(); p.on('open', () => { setConnected(true); p.destroy(); });
             }, []);
 
             useEffect(() => {
@@ -413,11 +431,12 @@
                     <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
                         <div className="flex items-center gap-2 cursor-pointer" onClick={() => setView('landing')}>
                             <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center font-black text-xl">M</div>
-                            <span className="text-xl font-brand font-bold">MATH<span className="text-indigo-400">MASTER</span></span>
+                            <span className="text-xl font-brand font-bold uppercase">MATH<span className="text-indigo-400">MASTER</span></span>
                         </div>
                         <div className="hidden md:flex gap-8">
                             <span className={`nav-link ${view === 'landing' || view === 'home' ? 'active' : ''}`} onClick={() => setView('landing')}>{t.navHome}</span>
                             <span className={`nav-link ${view === 'about' ? 'active' : ''}`} onClick={() => setView('about')}>{t.navAbout}</span>
+                            <a href="https://www.youtube.com/watch?v=Nbc7scngySc&list=RDNbc7scngySc&start_radio=1" target="_blank" className="nav-link text-rose-400 flex items-center gap-2">🎵 {t.navMusic}</a>
                         </div>
                         <div className="flex gap-4">
                             <button onClick={() => setLang(l => l === 'TH' ? 'EN' : 'TH')} className="bg-white/5 border border-white/10 px-4 py-2 rounded-full text-xs font-bold">{t.language}</button>
@@ -435,7 +454,7 @@
                     <Navbar />
                     {view === 'landing' && (
                         <main className="max-w-6xl mx-auto px-6 flex flex-col items-center justify-center min-h-[70vh] fade-in text-center">
-                            <h1 className="text-7xl md:text-9xl font-brand font-black mb-6 italic bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent uppercase tracking-tighter shadow-sm">Challenge Everything.</h1>
+                            <h1 className="text-7xl md:text-9xl font-brand font-black mb-6 italic bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent uppercase tracking-tighter">Challenge Everything.</h1>
                             <p className="text-xl md:text-2xl opacity-40 mb-12 max-w-2xl mx-auto">{t.subtitle}</p>
                             <button onClick={() => setView('home')} className="btn-premium px-12 py-5 rounded-3xl font-brand font-bold text-2xl uppercase tracking-widest">{t.start}</button>
                         </main>
@@ -445,7 +464,7 @@
                             <div><h1 className="text-6xl font-brand font-black mb-6 italic">{t.navAbout}</h1><button onClick={() => setView('landing')} className="text-indigo-400 font-bold hover:underline">← {t.back}</button></div>
                             <div className="space-y-4">
                                 {t.team.map((m, i) => (
-                                    <div key={i} className="glass-card p-6 flex items-center justify-between group hover:border-indigo-500 transition-all">
+                                    <div key={i} className="glass-card p-6 flex items-center justify-between group">
                                         <div className="flex items-center gap-4"><div className="w-12 h-12 rounded-2xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-black">{i + 1}</div><div><div className="font-bold text-lg">{m.name}</div><div className="text-[10px] uppercase tracking-widest opacity-40">{m.role}</div></div></div>
                                     </div>
                                 ))}
@@ -458,7 +477,7 @@
                                 <h2 className="text-3xl font-brand font-black mb-10 italic text-cyan-400 uppercase tracking-tighter">{t.title}</h2>
                                 <input className="w-full bg-white/5 border border-white/10 p-5 rounded-2xl mb-4 outline-none focus:border-indigo-500 font-bold" placeholder={t.nickname} value={username} onChange={e => setUsername(e.target.value)} />
                                 <button onClick={startHost} className="w-full btn-premium p-5 rounded-2xl font-bold text-lg mb-6 uppercase tracking-widest">{t.hostBtn}</button>
-                                <div className="relative mb-6 text-[10px] font-black uppercase opacity-20">--- OR ---</div>
+                                <div className="text-[10px] font-black uppercase opacity-20 mb-6">--- OR ---</div>
                                 <input className="w-full bg-white/5 border border-white/10 p-5 rounded-2xl mb-4 outline-none focus:border-indigo-500 font-bold text-center tracking-[0.5em] text-2xl" placeholder="PIN" value={roomCode} maxLength={4} onChange={e => setRoomCode(e.target.value.replace(/[^0-9]/g, ''))} />
                                 <button onClick={joinRoom} disabled={roomCode.length < 4 || !username} className="w-full border border-white/10 p-5 rounded-2xl font-bold hover:bg-white/5 disabled:opacity-30 uppercase tracking-widest">{t.joinBtn}</button>
                             </div>
@@ -467,21 +486,18 @@
                     {view === 'waiting' && (
                         <div className="max-w-4xl mx-auto px-6 mt-10 grid md:grid-cols-5 gap-8 fade-in">
                             <div className="md:col-span-2 space-y-6">
-                                <div className="glass-card p-8 bg-gradient-to-br from-indigo-500/10 to-transparent border-t-8 border-indigo-500">
+                                <div className="glass-card p-8 border-t-8 border-indigo-500">
                                     <div className="text-[10px] font-black opacity-30 uppercase tracking-[0.2em] mb-4">Arena PIN</div>
                                     <h2 className="text-7xl font-brand font-bold tracking-[0.2em] text-center mb-6">{pin || roomCode}</h2>
                                     <button onClick={() => { navigator.clipboard.writeText(pin || roomCode); alert('PIN Copied!'); }} className="w-full py-2 bg-indigo-500/10 text-indigo-400 font-bold text-xs uppercase hover:bg-indigo-500 rounded-lg hover:text-white transition-all">{t.copy}</button>
                                 </div>
-                                {isHost && <button onClick={startGameHost} className="w-full btn-premium py-6 rounded-3xl font-brand font-black text-2xl uppercase tracking-widest animate-pulse border-4 border-indigo-500/20">{t.startHost}</button>}
+                                {isHost && <button onClick={startGameHost} className="w-full btn-premium py-6 rounded-3xl font-brand font-black text-2xl uppercase tracking-widest animate-pulse">{t.startHost}</button>}
                             </div>
                             <div className="md:col-span-3">
                                 <h3 className="text-4xl font-brand font-black italic mb-8 uppercase tracking-tighter">{t.players} · {players.length}</h3>
                                 <div className="grid grid-cols-2 gap-4">
                                     {players.map((p, i) => (
-                                        <div key={i} className="p-5 glass-card flex items-center gap-4 bg-white/5 border-white/5 slide-up">
-                                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center font-black text-white">{p.name[0]}</div>
-                                            <span className="font-bold tracking-tight">{p.name} {p.id === 'me' && '👑'}</span>
-                                        </div>
+                                        <div key={i} className="p-5 glass-card flex items-center gap-4 bg-white/5 border-white/5 slide-up"><div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center font-black text-white">{p.name[0]}</div><span className="font-bold tracking-tight">{p.name} {p.id === 'me' && '👑'}</span></div>
                                     ))}
                                 </div>
                             </div>
@@ -489,13 +505,17 @@
                     )}
                     {view === 'playing' && (
                         <div className="max-w-5xl mx-auto px-6 fade-in">
-                            <div className="flex justify-between items-end mb-10">
-                                <div><div className="text-5xl font-brand font-black tracking-tighter italic text-indigo-400 uppercase">{t.question} {currentQ.n}/10</div></div>
+                            <div className="flex justify-between items-end mb-6">
+                                <div>
+                                    <div className="text-indigo-400 font-black mb-1 uppercase tracking-widest text-sm">{currentQ.qType}</div>
+                                    <div className="text-5xl font-brand font-black tracking-tighter italic uppercase">{t.question} {currentQ.n}/10</div>
+                                </div>
                                 <div className="flex gap-4">
                                     <div className="glass-card px-8 py-4 flex flex-col items-center border-none"><div className="text-[10px] font-black opacity-30 mb-1">TIMER</div><div className={`text-3xl font-black ${timer < 5 ? 'text-rose-500 animate-ping' : 'text-yellow-400'}`}>{timer}s</div></div>
                                     <div className="glass-card px-8 py-4 flex flex-col items-center border-none"><div className="text-[10px] font-black opacity-30 mb-1">{t.answered}</div><div className="text-3xl font-black text-emerald-400">{answersCount.r}/{answersCount.t}</div></div>
                                 </div>
                             </div>
+                            <div className="formula-box">{currentQ.formula}</div>
                             <div className="glass-card p-16 md:p-24 text-center mb-10 shadow-2xl relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-full h-2 bg-indigo-500"></div>
                                 <h2 className="text-7xl md:text-9xl font-brand font-black tracking-tighter italic">{currentQ.q}</h2>
@@ -521,16 +541,13 @@
                         </div>
                     )}
                     {view === 'gameover' && (
-                        <div className="max-w-3xl mx-auto px-6 text-center mt-10 scale-in shadow-gold shadow-2xl">
+                        <div className="max-w-3xl mx-auto px-6 text-center mt-10 scale-in">
                             <div className="text-9xl mb-12 animate-bounce">👑</div>
                             <h1 className="text-8xl font-brand font-black italic mb-4 bg-gradient-to-b from-indigo-400 to-purple-500 bg-clip-text text-transparent uppercase tracking-tighter">{t.champion}</h1>
                             <div className="space-y-4 mb-20 max-w-md mx-auto">
                                 {winners.map((p, i) => (
                                     <div key={i} className={`glass-card p-6 flex justify-between items-center ${i === 0 ? 'scale-110 border-indigo-500 bg-indigo-500/10 mb-8' : 'opacity-60'}`}>
-                                        <div className="flex items-center gap-6">
-                                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-brand font-black text-2xl ${i === 0 ? 'bg-indigo-500' : 'bg-white/10'}`}>{i + 1}</div>
-                                            <span className="text-3xl font-brand font-black uppercase italic tracking-tighter">{p.name}</span>
-                                        </div>
+                                        <div className="flex items-center gap-6"><div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-brand font-black text-2xl ${i === 0 ? 'bg-indigo-500' : 'bg-white/10'}`}>{i + 1}</div><span className="text-3xl font-brand font-black uppercase italic tracking-tighter">{p.name}</span></div>
                                         <span className="text-4xl font-brand font-black opacity-30">{p.score} pts</span>
                                     </div>
                                 ))}
