@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MATH MASTER | Ultra-Premium P2P</title>
+    <title>MATH MASTER | macOS M2 Edition</title>
     <!-- Dependencies -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -14,238 +14,365 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <link
-        href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;800&family=Inter:wght@400;600;800&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Kanit:wght@300;400;600&display=swap"
         rel="stylesheet">
     <style>
         :root {
-            --kahoot-purple: #46178f;
-            --kahoot-dark: #330e6b;
-            --kahoot-red: #e21b3c;
-            --kahoot-blue: #1368ce;
-            --kahoot-yellow: #d89e00;
-            --kahoot-green: #26890c;
-            --white: #ffffff;
-            --gray: #f2f2f2;
+            --mac-bg: #000;
+            --mac-accent: #007AFF;
+            --mac-glass: rgba(255, 255, 255, 0.2);
+            --mac-glass-dark: rgba(0, 0, 0, 0.3);
+            --mac-text: #ffffff;
+            --mac-radius: 12px;
         }
 
         body {
-            font-family: 'Kanit', 'Inter', sans-serif;
-            background: var(--kahoot-purple);
-            color: var(--white);
-            min-height: 100vh;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", 'Kanit';
             margin: 0;
-            overflow-x: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Clean Navbar */
-        .kahoot-nav {
-            background: var(--white);
-            color: var(--kahoot-purple);
-            height: 64px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 24px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-        }
-
-        .nav-link {
-            font-weight: 800;
-            text-transform: uppercase;
-            font-size: 14px;
-            padding: 8px 16px;
-            border-radius: 4px;
-            transition: 0.2s;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .nav-link:hover {
-            background: rgba(70, 23, 143, 0.05);
-        }
-
-        .nav-link.active {
-            color: var(--kahoot-red);
-        }
-
-        /* Main Container */
-        .main-content {
-            margin-top: 64px;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Clean Cards */
-        .kahoot-card {
-            background: var(--white);
-            color: #333;
-            border-radius: 4px;
-            padding: 32px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            max-width: 480px;
-            width: 100%;
-            text-align: center;
-        }
-
-        .kahoot-input {
-            width: 100%;
-            padding: 16px;
-            border: 2px solid #ccc;
-            border-radius: 4px;
-            font-size: 18px;
-            font-weight: 800;
-            text-align: center;
-            outline: none;
-            transition: 0.2s;
-        }
-
-        .kahoot-input:focus {
-            border-color: var(--kahoot-purple);
-        }
-
-        .btn-enter {
-            background: #333;
-            color: var(--white);
-            font-weight: 800;
-            padding: 16px;
-            width: 100%;
-            border-radius: 4px;
-            font-size: 18px;
-            margin-top: 16px;
-            transition: 0.2s;
-        }
-
-        .btn-enter:hover {
+            padding: 0;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
             background: #000;
         }
 
-        /* Kahoot Grid Buttons */
-        .grid-button {
-            height: clamp(80px, 15vh, 180px);
-            font-size: clamp(1.5rem, 4vw, 3rem);
+        /* macOS Ventura/Sonoma Inspired Wallpaper */
+        .desktop-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, #1e0533 0%, #3e0a5a 25%, #6a1b9a 50%, #9c27b0 75%, #e1bee7 100%);
+            background-size: 400% 400%;
+            animation: meshGradient 15s ease infinite;
+        }
+
+        @keyframes meshGradient {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        /* macOS Menubar */
+        .mac-menubar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 24px;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 500;
+            z-index: 1000;
+        }
+
+        .menubar-item {
+            padding: 0 10px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            cursor: default;
+        }
+
+        .menubar-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .menubar-left {
+            display: flex;
+            flex: 1;
+            align-items: center;
+        }
+
+        .menubar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* macOS Window Styling */
+        .mac-window {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border-radius: 12px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            width: 90%;
+            max-width: 1000px;
+            height: 80vh;
+            margin: auto;
+            position: relative;
+            color: #333;
+        }
+
+        .window-titlebar {
+            height: 38px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            background: rgba(255, 255, 255, 0.35);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .traffic-lights {
+            display: flex;
+            gap: 8px;
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot-red {
+            background: #FF5F56;
+            border: 0.5px solid #E0443E;
+        }
+
+        .dot-yellow {
+            background: #FFBD2E;
+            border: 0.5px solid #DEA123;
+        }
+
+        .dot-green {
+            background: #27C93F;
+            border: 0.5px solid #1AAB29;
+        }
+
+        .window-content {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        /* macOS Dock */
+        .mac-dock-container {
+            position: fixed;
+            bottom: 10px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .mac-dock {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px;
+            border-radius: 20px;
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .dock-icon {
+            width: 50px;
+            height: 50px;
+            background: #fff;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: 800;
-            color: var(--white);
+            font-size: 20px;
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+
+        .dock-icon:hover {
+            transform: scale(1.4) translateY(-10px);
+            margin: 0 10px;
+        }
+
+        .dock-indicator {
+            position: absolute;
+            bottom: -5px;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+        }
+
+        /* Game Elements Styling (Mac Style) */
+        .btn-mac-primary {
+            background: var(--mac-accent);
+            color: #fff;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: opacity 0.2s;
+        }
+
+        .btn-mac-primary:hover {
+            opacity: 0.9;
+        }
+
+        .mac-input {
+            background: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 6px;
+            padding: 8px 12px;
+            outline: none;
+            width: 100%;
+            transition: border-color 0.2s;
+        }
+
+        .mac-input:focus {
+            border-color: var(--mac-accent);
+        }
+
+        .chalkboard-mac {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .grid-button-mac {
+            height: 120px;
+            border-radius: 12px;
+            font-size: 2rem;
+            font-weight: 600;
+            color: white;
             display: flex;
             align-items: center;
             padding: 0 24px;
             gap: 16px;
-            border-radius: 4px;
-            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
-            transition: 0.1s;
+            transition: transform 0.1s, opacity 0.2s;
         }
 
-        .grid-button:active {
-            transform: translateY(2px);
-            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+        .grid-button-mac:active {
+            transform: scale(0.98);
         }
 
-        .kb-red {
-            background: var(--kahoot-red);
-        }
-
-        .kb-blue {
-            background: var(--kahoot-blue);
-        }
-
-        .kb-yellow {
-            background: var(--kahoot-yellow);
-        }
-
-        .kb-green {
-            background: var(--kahoot-green);
-        }
-
-        .chalkboard {
-            background: var(--white);
-            color: #333;
+        .mac-card {
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
             padding: 24px;
-            text-align: center;
-            border-radius: 4px;
-            font-size: clamp(2rem, 8vw, 6rem);
-            font-weight: 800;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Status Badge */
-        .status-badge {
-            background: var(--kahoot-purple);
-            color: var(--white);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 800;
-        }
-
-        /* About Page Names */
-        .about-name {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--kahoot-purple);
-            margin-bottom: 12px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 8px;
-            text-align: left;
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         @media (max-width: 768px) {
-            .nav-text {
-                display: none;
+            .mac-window {
+                width: 95%;
+                height: 85vh;
             }
 
-            .kahoot-card {
-                margin: 20px;
+            .grid-button-mac {
+                height: 80px;
+                font-size: 1.5rem;
+            }
+
+            .chalkboard-mac {
+                font-size: 2rem;
+                padding: 20px;
             }
         }
     </style>
 </head>
 
-<body>
-    <div class="bg-mesh" id="mesh-bg"></div>
-    <div id="root"></div>
+<body class="flex items-center justify-center">
+    <div class="desktop-bg"></div>
+
+    <div class="mac-menubar">
+        <div class="menubar-left">
+            <div class="menubar-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="white">
+                    <path
+                        d="M17.05 20.28c-.96.95-2.04 1.72-3.1 1.72-1.01 0-1.42-.55-2.73-.55-1.3 0-1.78.53-2.73.53-1 0-2.14-.77-3.23-1.74-2.22-1.95-3.83-5.59-3.83-8.81 0-3.35 2.11-5.3 4.15-5.3 1.05 0 2.05.68 2.68.68.65 0 1.78-.81 3.03-.81 1.27 0 3.23.63 4.41 2.37-2.61 1.58-2.19 5.38.44 6.64-.61 1.57-1.44 3.09-2.23 4.28zM12.03 7.25c-.21-2.45 1.83-4.59 4.09-4.8 0 0 .52 3.86-3.19 4.8-.31.08-.62.15-.9.15l-.23-.15h.23z" />
+                </svg></div>
+            <div class="menubar-item font-bold">MathMaster</div>
+            <div class="menubar-item">File</div>
+            <div class="menubar-item">Edit</div>
+            <div class="menubar-item">View</div>
+            <div class="menubar-item">Window</div>
+            <div class="menubar-item">Help</div>
+        </div>
+        <div class="menubar-right text-xs">
+            <div class="menubar-item" id="time-display">20:54</div>
+            <div class="menubar-item">🔋 100%</div>
+            <div class="menubar-item">📶</div>
+            <div class="menubar-item">🔍</div>
+        </div>
+    </div>
+
+    <div id="root" class="w-full flex items-center justify-center pt-6"></div>
+
+    <div class="mac-dock-container">
+        <div class="mac-dock">
+            <div class="dock-icon bg-blue-500 text-white" title="Home">🏠</div>
+            <div class="dock-icon bg-green-500 text-white" title="About">ℹ️</div>
+            <div class="dock-icon bg-orange-500 text-white" title="Settings">⚙️</div>
+            <div class="dock-indicator"></div>
+        </div>
+    </div>
 
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
         const translations = {
             TH: {
-                title: "ชุดฝึกทักษะคณิตศาสตร์",
-                subtitle: "เตรียมพร้อมสำหรับการประมวลผลระบบประสาท",
-                start: "เริ่มใช้งาน",
-                nickname: "กรุณาใส่ชื่อเล่นของคุณ",
+                title: "MATH MASTER M2",
+                subtitle: "ระบบประมวลผลคณิตศาสตร์ระดับพรีเมียม",
+                start: "เริ่มต้นใช้งาน",
+                nickname: "กรุณาใส่ชื่อของคุณ",
                 hostBtn: "สร้างห้องใหม่ (HOST)",
                 joinBtn: "เข้าร่วม (JOIN)",
-                players: "ผู้เล่นทั้งหมด",
-                waiting: "รอเซิร์ฟเวอร์เริ่มเกม...",
-                startHost: "เริ่มเล่นทันที!",
-                question: "ข้อที่",
+                players: "ผู้ใช้งานที่เชื่อมต่อ",
+                waiting: "กำลังรอการเชื่อมต่อจากโฮสต์...",
+                startHost: "เริ่มการประมวลผล",
+                question: "โจทย์ที่",
                 answered: "ส่งคำตอบแล้ว",
-                skip: "ข้ามไปดูคะแนน",
-                scoreboard: "อันดับคะแนน",
-                nextSub: "เตรียมพบกับโจทย์ถัดไป...",
-                champion: "ผู้ชนะสูงสุด",
-                back: "กลับหน้าหลัก",
+                skip: "ข้าม",
+                scoreboard: "สรุปคะแนน",
+                nextSub: "กำลังเตรียมโจทย์ถัดไป...",
+                champion: "สุดยอดนักคณิตศาสตร์",
+                back: "กลับไปยังหน้าแรก",
                 navHome: "หน้าหลัก",
                 navAbout: "เกี่ยวกับเรา",
-                language: "เปลี่ยนภาษา",
-                developedBy: "ผู้พัฒนาระบบ"
+                language: "ภาษา",
+                developedBy: "ทีมผู้พัฒนา"
             },
             EN: {
-                title: "MATH MASTER ULTRA",
-                subtitle: "Prepare for neural link processing",
-                start: "START MISSION",
-                nickname: "Enter your codename",
+                title: "MATH MASTER M2",
+                subtitle: "Premium Mathematical Processing System",
+                start: "GET STARTED",
+                nickname: "Enter your username",
                 hostBtn: "INITIALIZE HOST",
                 joinBtn: "JOIN ARENA",
-                players: "ACTIVE USERS",
+                players: "CONNECTED USERS",
                 waiting: "WAITING FOR UPLINK...",
                 startHost: "EXECUTE START",
                 question: "SEQUENCE",
@@ -257,7 +384,7 @@
                 back: "REBOOT_SESSION",
                 navHome: "HOME",
                 navAbout: "ABOUT US",
-                language: "CHANGE LANG",
+                language: "LANG",
                 developedBy: "DEVELOPED BY"
             }
         };
@@ -327,7 +454,7 @@
                         { 'urls': 'stun:stun2.l.google.com:19302' }
                     ]
                 },
-                debug: 1 // Keep it quiet but log criticals
+                debug: 1
             };
 
             const t = translations[lang];
@@ -342,7 +469,11 @@
             };
 
             useEffect(() => {
-                return cleanupPeer;
+                const interval = setInterval(() => {
+                    const now = new Date();
+                    document.getElementById('time-display').innerText = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+                }, 1000);
+                return () => { clearInterval(interval); cleanupPeer(); };
             }, []);
 
             const hostBroadcast = (data) => {
@@ -351,7 +482,7 @@
             };
 
             const startHost = () => {
-                if (!username) return alert('Nickname needed!');
+                if (!username) return alert('Username needed!');
                 cleanupPeer();
                 setNetStatus('WAITING...');
                 const randomPin = Math.floor(1000 + Math.random() * 9000).toString();
@@ -393,11 +524,6 @@
                         setPlayers([...g.players]); hostBroadcast({ type: 'plist', p: g.players });
                     });
                 });
-                p.on('error', err => {
-                    console.error('Host Peer Error:', err);
-                    if (err.type === 'id-taken') startHost();
-                    else { setNetStatus('OFFLINE'); alert('Host Error: ' + err.type); }
-                });
             };
 
             const joinRoom = () => {
@@ -412,17 +538,7 @@
                         setView('waiting'); setConnected(true); setNetStatus('CONNECTED');
                     });
                     c.on('data', d => updateInternal(d));
-                    c.on('error', (err) => {
-                        alert('Connect Error: ' + err.type);
-                        setNetStatus('FAILED'); setView('home');
-                    });
                     c.on('close', () => { alert('Host disconnected!'); window.location.reload(); });
-                });
-                p.on('error', e => {
-                    console.error('Join Peer Error:', e);
-                    setNetStatus('FAILED');
-                    if (e.type === 'peer-unavailable') alert('Room not found! Check PIN.');
-                    else alert('Error: ' + e.type);
                 });
             };
 
@@ -435,7 +551,7 @@
             };
 
             useEffect(() => {
-                gsap.fromTo(".view-container", { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" });
+                gsap.fromTo(".mac-window", { scale: 0.9, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4, ease: "back.out(1.7)" });
             }, [view]);
 
             const startGame = () => {
@@ -463,168 +579,165 @@
                     g.r++; hostBroadcast({ type: 'aupd', r: g.r, t: g.players.length });
                     if (g.r === g.players.length) { clearTimeout(g.tId); showLeaderboard(); }
                 } else {
-                    if (hostConnRef.current && hostConnRef.current.open) {
-                        hostConnRef.current.send({ type: 'ans', v });
-                    } else {
-                        alert('Not connected to Host!');
-                        setNetStatus('FAILED');
-                    }
+                    if (hostConnRef.current && hostConnRef.current.open) hostConnRef.current.send({ type: 'ans', v });
                 }
             };
 
-            useEffect(() => { localStorage.setItem('math_name', username); }, [username]);
-
             const Shape = ({ type }) => {
-                if (type === 'tri') return <svg className="w-8 h-8 md:w-10 md:h-10 fill-white" viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2z" /></svg>;
-                if (type === 'dia') return <svg className="w-8 h-8 md:w-10 md:h-10 fill-white" viewBox="0 0 24 24"><path d="M12 2l10 10-10 10-10-10z" /></svg>;
-                if (type === 'cir') return <svg className="w-8 h-8 md:w-10 md:h-10 fill-white" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /></svg>;
-                if (type === 'squ') return <svg className="w-8 h-8 md:w-10 md:h-10 fill-white" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" /></svg>;
+                if (type === 'tri') return <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2z" /></svg>;
+                if (type === 'dia') return <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24"><path d="M12 2l10 10-10 10-10-10z" /></svg>;
+                if (type === 'cir') return <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /></svg>;
+                if (type === 'squ') return <svg className="w-6 h-6 fill-white" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" /></svg>;
                 return null;
             };
 
+            const MacWindow = ({ children, title }) => (
+                <div className="mac-window">
+                    <div className="window-titlebar">
+                        <div className="traffic-lights">
+                            <div className="dot dot-red"></div>
+                            <div className="dot dot-yellow"></div>
+                            <div className="dot dot-green"></div>
+                        </div>
+                        <div className="flex-1 text-center text-xs font-semibold opacity-60">{title || "MathMaster"}</div>
+                    </div>
+                    <div className="window-content">
+                        {children}
+                    </div>
+                </div>
+            );
+
             return (
-                <div className="min-h-screen flex flex-col">
-                    <nav className="kahoot-nav">
-                        <div className="flex items-center gap-6">
-                            <div className="flex items-center gap-2 cursor-pointer" onClick={() => setView('landing')}>
-                                <div className="w-10 h-10 bg-[#46178f] text-white flex items-center justify-center font-black text-2xl rounded-sm">K!</div>
-                                <span className="text-xl font-black text-[#46178f] hidden sm:inline">Math Master</span>
-                            </div>
-                            <div className="flex gap-2">
-                                <div className={`nav-link ${view === 'landing' || view === 'home' ? 'active' : ''}`} onClick={() => setView('landing')}>
-                                    <span className="nav-text">{t.navHome}</span>
-                                </div>
-                                <div className={`nav-link ${view === 'about' ? 'active' : ''}`} onClick={() => setView('about')}>
-                                    <span className="nav-text">{t.navAbout}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-4">
-                            <div className="status-badge mobile-hide">
-                                {netStatus}
-                            </div>
-                            <button onClick={() => setLang(l => l === 'TH' ? 'EN' : 'TH')} className="nav-link font-black">
-                                🌎 <span className="nav-text">{t.language}</span>
-                            </button>
-                        </div>
-                    </nav>
-
-                    <div className="main-content">
-                        {view === 'landing' && (
-                            <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-                                <div className="mb-8">
-                                    <div className="text-8xl font-black text-white selection:bg-white selection:text-[#46178f]">Kahoot!</div>
-                                </div>
-                                <div className="kahoot-card">
-                                    <h1 className="text-2xl font-black mb-6 uppercase text-[#333]">{t.title}</h1>
-                                    <p className="text-[#666] mb-8 font-bold">{t.subtitle}</p>
-                                    <button onClick={() => setView('home')} className="btn-enter">{t.start}</button>
-                                </div>
-                            </div>
-                        )}
-
-                        {view === 'about' && (
-                            <div className="flex-1 flex items-center justify-center p-6">
-                                <div className="kahoot-card max-w-2xl">
-                                    <h2 className="text-3xl font-black mb-10 text-[#46178f] uppercase border-b-4 border-[#46178f] pb-4">{t.navAbout}</h2>
-                                    <div className="space-y-4">
-                                        <div className="about-name">นายกรณ์มิษฐ์ อินดา</div>
-                                        <div className="about-name">นายนพกิจ สุรินทร์ต๊ะ</div>
-                                        <div className="about-name">นายวุฒิภัทร จ่าหย่อง</div>
-                                        <div className="about-name">นายสุริยะทิตย์ สุริยะวงค์</div>
-                                        <div className="about-name">นายจตุรงค์ กิจโชคประเสริฐ</div>
+                <div className="w-full h-full flex items-center justify-center">
+                    {view === 'landing' && (
+                        <MacWindow title="Welcome">
+                            <div className="flex-1 flex flex-col items-center justify-center text-center p-10">
+                                <div className="text-7xl font-black mb-4 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">MathMaster</div>
+                                <div className="text-xl font-medium text-gray-600 mb-10">{t.subtitle}</div>
+                                <div className="mac-card w-full max-w-md">
+                                    <button onClick={() => setView('home')} className="btn-mac-primary w-full text-lg py-3">{t.start}</button>
+                                    <div className="mt-4 flex justify-center gap-4">
+                                        <button onClick={() => setLang(l => l === 'TH' ? 'EN' : 'TH')} className="text-sm font-semibold text-blue-500">
+                                            {t.language}: {lang}
+                                        </button>
                                     </div>
-                                    <button onClick={() => setView('home')} className="btn-enter mt-10">{t.back}</button>
                                 </div>
                             </div>
-                        )}
+                        </MacWindow>
+                    )}
 
-                        {view === 'home' && (
-                            <div className="flex-1 flex items-center justify-center p-6">
-                                <div className="kahoot-card">
-                                    <h2 className="text-2xl font-black mb-8 text-[#333]">GET STARTED</h2>
-                                    <input className="kahoot-input mb-4" placeholder={t.nickname} value={username} onChange={e => setUsername(e.target.value)} />
-                                    <button onClick={startHost} className="btn-enter mb-6">{t.hostBtn}</button>
-                                    <div className="mb-6 opacity-20 font-black">- OR -</div>
-                                    <input className="kahoot-input mb-4" placeholder="GAME PIN" value={roomCode} maxLength={4} onChange={e => setRoomCode(e.target.value.replace(/[^0-9]/g, ''))} />
-                                    <button onClick={joinRoom} disabled={roomCode.length < 4} className="btn-enter !bg-[#333] hover:!bg-black disabled:opacity-20">ENTER</button>
-                                </div>
-                            </div>
-                        )}
-
-                        {view === 'waiting' && (
-                            <div className="flex-1 flex flex-col items-center justify-center p-6">
-                                <div className="max-w-4xl w-full flex flex-col items-center">
-                                    <div className="bg-white text-[#333] p-10 rounded-sm shadow-xl text-center w-full max-w-md mb-12">
-                                        <div className="text-xs font-black opacity-40 mb-2 uppercase">GAME PIN:</div>
-                                        <div className="text-7xl font-black">{pin || roomCode}</div>
+                    {view === 'home' && (
+                        <MacWindow title="Connect">
+                            <div className="flex-1 flex flex-col items-center justify-center max-w-md mx-auto w-full">
+                                <h1 className="text-3xl font-bold mb-8">System Login</h1>
+                                <div className="space-y-6 w-full">
+                                    <div>
+                                        <label className="text-xs font-bold uppercase opacity-50 block mb-2">Username</label>
+                                        <input className="mac-input text-lg" placeholder={t.nickname} value={username} onChange={e => setUsername(e.target.value)} />
                                     </div>
-                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
+                                    <button onClick={startHost} className="btn-mac-primary w-full py-4 text-lg">{t.hostBtn}</button>
+                                    <div className="text-center py-2 opacity-30 font-bold">OR JOIN ROOM</div>
+                                    <div>
+                                        <input className="mac-input text-lg text-center tracking-widest font-black" placeholder="CODE" value={roomCode} maxLength={4} onChange={e => setRoomCode(e.target.value.replace(/[^0-9]/g, ''))} />
+                                    </div>
+                                    <button onClick={joinRoom} disabled={roomCode.length < 4} className="btn-mac-primary !bg-gray-800 w-full py-4 disabled:opacity-30">CONNECT ARENA</button>
+                                </div>
+                            </div>
+                        </MacWindow>
+                    )}
+
+                    {view === 'waiting' && (
+                        <MacWindow title="Room Monitor">
+                            <div className="flex-1 flex flex-col items-center p-8">
+                                <div className="bg-white/40 p-10 rounded-2xl border border-white/40 shadow-sm text-center w-full max-w-sm mb-12">
+                                    <div className="text-xs font-bold opacity-40 mb-1 uppercase">ROOM ACCESS CODE</div>
+                                    <div className="text-6xl font-black tracking-widest">{pin || roomCode}</div>
+                                </div>
+                                <div className="w-full flex-1">
+                                    <div className="text-xs font-bold opacity-40 mb-4 uppercase">{t.players}</div>
+                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                                         {players.map((p, i) => (
-                                            <div key={i} className="bg-white/10 p-4 font-black text-xl text-center border-b-4 border-black/20">
-                                                {p.name}
+                                            <div key={i} className="bg-white/60 p-4 rounded-xl font-bold text-center border border-white/20 shadow-sm">
+                                                {p.name} {p.id === 'me' && '👑'}
                                             </div>
                                         ))}
                                     </div>
-                                    {isHost && players.length > 1 && (
-                                        <button onClick={startGame} className="btn-enter max-w-sm !bg-white !text-[#46178f] mt-12 text-2xl py-6">START</button>
-                                    )}
-                                    {!isHost && <div className="mt-12 text-2xl font-black animate-pulse">{t.waiting}</div>}
                                 </div>
+                                {isHost && players.length > 1 && (
+                                    <button onClick={startGame} className="btn-mac-primary mt-12 px-20 py-5 text-2xl shadow-xl">BOOT GAME</button>
+                                )}
+                                {!isHost && <div className="mt-12 text-lg font-semibold animate-pulse">{t.waiting}</div>}
                             </div>
-                        )}
+                        </MacWindow>
+                    )}
 
-                        {view === 'playing' && (
-                            <div className="flex-1 flex flex-col p-6 max-w-7xl mx-auto w-full main-content">
-                                <div className="chalkboard mb-10">
+                    {view === 'playing' && (
+                        <MacWindow title={`Problem ${currentQ.n}/10`}>
+                            <div className="flex-1 flex flex-col p-4 max-w-5xl mx-auto w-full">
+                                <div className="chalkboard-mac">
                                     {currentQ.q}
                                 </div>
-
-                                <div className="flex justify-between items-center mb-8 bg-black/10 p-4 font-black">
-                                    <div>{t.question} {currentQ.n} / 10</div>
-                                    <div className={timer < 6 ? 'text-red-500' : ''}>TIME: {timer}</div>
-                                    <div>{answersCount.r} / {answersCount.t} {t.answered}</div>
+                                <div className="flex justify-between items-center mb-6 px-4 font-bold opacity-60">
+                                    <div className="bg-white/60 px-4 py-2 rounded-full">SYSTEM: {timer}s</div>
+                                    <div className="bg-white/60 px-4 py-2 rounded-full">SYNCED: {answersCount.r}/{answersCount.t}</div>
                                 </div>
-
-                                <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    {['kb-red', 'kb-blue', 'kb-yellow', 'kb-green'].map((c, i) => (
-                                        <button key={i} onClick={() => submit(currentQ.opts[i])} disabled={hasAnswered} className={`grid-button ${c} ${hasAnswered ? 'opacity-20' : ''}`}>
-                                            <Shape type={['tri', 'dia', 'cir', 'squ'][i]} />
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {[
+                                        { color: 'bg-red-500', shape: 'tri' },
+                                        { color: 'bg-blue-500', shape: 'dia' },
+                                        { color: 'bg-amber-500', shape: 'cir' },
+                                        { color: 'bg-green-500', shape: 'squ' }
+                                    ].map((opt, i) => (
+                                        <button key={i} onClick={() => submit(currentQ.opts[i])} disabled={hasAnswered} className={`grid-button-mac ${opt.color} ${hasAnswered ? 'opacity-30' : 'hover:scale-[1.02]'}`}>
+                                            <Shape type={opt.shape} />
                                             <span className="truncate">{currentQ.opts[i]}</span>
                                         </button>
                                     ))}
                                 </div>
+                                {hasAnswered && <div className="mt-8 text-center text-xl font-bold text-blue-600 animate-bounce">{t.answered}</div>}
                             </div>
-                        )}
+                        </MacWindow>
+                    )}
 
-                        {view === 'leaderboard' && (
-                            <div className="flex-1 flex flex-col items-center justify-center p-6">
-                                <h2 className="text-6xl font-black mb-12 uppercase">{t.scoreboard}</h2>
-                                <div className="max-w-md w-full space-y-2">
+                    {view === 'leaderboard' && (
+                        <MacWindow title="Rankings">
+                            <div className="flex-1 flex flex-col items-center justify-center p-8">
+                                <h1 className="text-4xl font-black mb-10 tracking-tight">{t.scoreboard}</h1>
+                                <div className="w-full max-w-md space-y-3">
                                     {players.sort((a, b) => b.score - a.score).map((p, i) => (
-                                        <div key={i} className="bg-white text-[#333] p-6 flex justify-between items-center font-black text-2xl shadow-lg">
-                                            <span>{p.name} {p.id === 'me' && '⚡'}</span>
-                                            <span>{p.score}</span>
+                                        <div key={i} className="bg-white/80 p-5 rounded-2xl flex justify-between items-center font-bold text-xl shadow-sm border border-white/50">
+                                            <div className="flex items-center gap-4">
+                                                <span className="opacity-30 text-sm">#{i + 1}</span>
+                                                <span>{p.name} {p.id === 'me' && '⚡'}</span>
+                                            </div>
+                                            <span className="text-blue-600">{p.score}</span>
                                         </div>
                                     ))}
                                 </div>
+                                <div className="mt-10 text-sm font-bold opacity-40 uppercase tracking-widest animate-pulse">{t.nextSub}</div>
                             </div>
-                        )}
+                        </MacWindow>
+                    )}
 
-                        {view === 'gameover' && (
-                            <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
-                                <h1 className="text-8xl font-black mb-16 uppercase">{t.champion}</h1>
-                                <div className="kahoot-card mb-12">
+                    {view === 'gameover' && (
+                        <MacWindow title="Results">
+                            <div className="flex-1 flex flex-col items-center justify-center text-center p-10">
+                                <div className="text-5xl font-black mb-12">{t.champion}</div>
+                                <div className="w-full max-w-md bg-white/40 p-8 rounded-3xl border border-white/40 mb-10">
                                     {winners.slice(0, 3).map((w, i) => (
-                                        <div key={i} className="text-3xl font-black mb-4 border-b pb-2 text-[#46178f]">
-                                            {i + 1}. {w.name} - {w.score} pts
+                                        <div key={i} className={`flex justify-between items-center py-4 ${i < 2 ? 'border-b border-black/5' : ''}`}>
+                                            <div className="flex items-center gap-4">
+                                                <span className="text-2xl">{i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</span>
+                                                <span className="text-2xl font-bold">{w.name}</span>
+                                            </div>
+                                            <span className="text-2xl font-black text-blue-600">{w.score} pts</span>
                                         </div>
                                     ))}
                                 </div>
-                                <button onClick={() => window.location.reload()} className="btn-enter max-w-sm">{t.back}</button>
+                                <button onClick={() => window.location.reload()} className="btn-mac-primary px-12 py-4 shadow-lg text-lg">RE-INITIALIZE SYSTEM</button>
                             </div>
-                        )}
-                    </div>
+                        </MacWindow>
+                    )}
                 </div>
             );
         }
