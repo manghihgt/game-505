@@ -325,16 +325,19 @@
 
                 p.on('error', (err) => {
                     if (err.type === 'id-taken') startHost();
-                    else alert('Connection Error: ' + err.type);
+                    else alert('PeerJS Host Error: ' + err.type);
                 });
 
                 p.on('connection', c => {
-                    // Listen for data IMMEDIATELY
+                    // Listen for data IMMEDIATELY when connection is received
                     c.on('data', d => {
                         const g = gameRef.current;
+                        console.log('Host received data:', d.type, 'from', c.peer);
+
                         if (d.type === 'join') {
-                            if (!g.players.find(x => x.id === c.peer)) {
-                                g.players.push({ id: c.peer, name: d.name, score: 0 });
+                            const pid = d.peerId || c.peer;
+                            if (!g.players.find(x => x.id === pid)) {
+                                g.players.push({ id: pid, name: d.name, score: 0 });
                                 setPlayers([...g.players]);
                                 hostBroadcast({ type: 'plist', p: g.players });
                             }
@@ -350,9 +353,13 @@
                     });
 
                     c.on('open', () => {
+                        console.log('Connection from client open:', c.peer);
                         if (!connsRef.current.find(x => x.peer === c.peer)) {
                             connsRef.current.push(c);
                         }
+                        // SIGNAL TO CLIENT THAT HOST IS READY FOR JOIN DATA
+                        c.send({ type: 'host_ready' });
+                        // fallback list
                         c.send({ type: 'plist', p: gameRef.current.players });
                     });
 
@@ -371,13 +378,21 @@
                 const p = new Peer();
                 setMyPeer(p);
                 p.on('open', (id) => {
-                    const c = p.connect(`math-${roomCode}`);
+                    const c = p.connect(`math-${roomCode}`, { reliable: true });
                     hostConnRef.current = c;
-                    c.on('data', d => updateInternal(d));
+
+                    c.on('data', d => {
+                        console.log('Client received data:', d.type);
+                        if (d.type === 'host_ready') {
+                            // SEND JOIN DATA ONLY AFTER HOST IS READY
+                            c.send({ type: 'join', name: username, peerId: id });
+                            setView('waiting');
+                        }
+                        updateInternal(d);
+                    });
 
                     c.on('open', () => {
-                        c.send({ type: 'join', name: username });
-                        setView('waiting');
+                        console.log('Connection to host established.');
                     });
 
                     c.on('error', err => {
