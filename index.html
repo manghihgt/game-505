@@ -482,10 +482,12 @@
                         <div className="max-w-7xl mx-auto px-6 fade-in h-[85vh] flex flex-col">
                             {/* TOP INFO BAR */}
                             <div className="flex items-center justify-between mb-8">
-                                <div className="bg-white text-black px-8 py-3 rounded-lg font-black text-3xl shadow-xl">{currentQ.q}</div>
+                                <div className="flex flex-col">
+                                    <div className="text-5xl font-brand font-black tracking-tighter italic uppercase">{t.question} {currentQ.n}/10</div>
+                                </div>
                                 <div className="flex gap-4">
                                     {isHost && <button onClick={skipQ} className="skip-btn">{t.skip}</button>}
-                                    <div className="bg-white/10 px-6 py-2 rounded-lg font-bold">FPS N/A | GPU 6%</div>
+                                    <div className="bg-white/10 px-6 py-2 rounded-lg font-bold text-xs">STATUS: ONLINE</div>
                                 </div>
                             </div>
 
@@ -498,14 +500,25 @@
                                     </div>
                                 </div>
 
-                                {/* CENTER IMAGE (CHALKBOARD) */}
-                                <div className="col-span-4 h-full chalkboard flex flex-col items-center justify-center text-center p-8">
-                                    <h2 className="text-2xl font-brand font-black mb-4 opacity-70 italic">{currentQ.qType}</h2>
-                                    <div className="text-lg bg-orange-500/20 px-6 py-2 rounded-full border border-orange-500/50 mb-8 font-mono">{currentQ.formula}</div>
-                                    <div className="text-center">
-                                        <h3 className="text-8xl md:text-9xl font-brand font-black tracking-tighter opacity-10 blur-[1px] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none">E=mc²</h3>
-                                        <h3 className="text-8xl md:text-9xl font-brand font-black tracking-tighter opacity-10 absolute top-1/4 right-1/4 select-none">∫√π</h3>
-                                        <img src="https://www.transparenttextures.com/patterns/black-linen.png" className="absolute inset-0 opacity-10 pointer-events-none" />
+                                {/* CENTER AREA (CHALKBOARD) */}
+                                <div className="col-span-4 h-full chalkboard flex flex-col items-center justify-center text-center p-12 relative overflow-hidden group">
+                                    <div className="absolute top-0 left-0 w-full h-2 bg-indigo-500/50 group-hover:h-3 transition-all"></div>
+
+                                    <h2 className="text-2xl font-brand font-black mb-2 text-indigo-400/80 italic uppercase tracking-[0.2em]">{currentQ.qType}</h2>
+
+                                    {/* Main Question - NOW CENTERED */}
+                                    <div className="bg-white text-black px-12 py-6 rounded-2xl font-black text-6xl md:text-8xl shadow-2xl mb-8 scale-in border-b-8 border-black/10">
+                                        {currentQ.q}
+                                    </div>
+
+                                    {/* Formula - NOW CENTERED BELOW QUESTION */}
+                                    <div className="text-xl bg-indigo-500/20 px-8 py-3 rounded-xl border border-indigo-500/30 font-mono text-indigo-200">
+                                        {currentQ.formula}
+                                    </div>
+
+                                    <div className="absolute inset-0 opacity-[0.03] pointer-events-none select-none">
+                                        <h3 className="text-9xl font-brand font-black absolute top-10 left-10">Σ</h3>
+                                        <h3 className="text-9xl font-brand font-black absolute bottom-10 right-10">π</h3>
                                     </div>
                                 </div>
 
