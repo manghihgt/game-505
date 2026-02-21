@@ -316,6 +316,19 @@
             const hostConnRef = useRef(null);
             const gameRef = useRef({ questions: [], idx: 0, players: [], r: 0, tId: null });
 
+            const [netStatus, setNetStatus] = useState('OFFLINE');
+            const peerConfig = {
+                config: {
+                    'iceServers': [
+                        { 'urls': 'stun:stun.l.google.com:19302' },
+                        { 'urls': 'stun:stun1.l.google.com:19302' },
+                        { 'urls': 'stun:stun2.l.google.com:19302' },
+                        { 'urls': 'stun:stun3.l.google.com:19302' },
+                        { 'urls': 'stun:stun4.l.google.com:19302' }
+                    ]
+                }
+            };
+
             const t = translations[lang];
 
             useEffect(() => {
@@ -331,31 +344,30 @@
             }, []);
 
             const hostBroadcast = (data) => {
-                connsRef.current.forEach(c => c.send(data));
+                connsRef.current.forEach(c => { if (c.open) c.send(data); });
                 updateInternal(data);
             };
 
             const startHost = () => {
                 if (!username) return alert('Nickname needed!');
+                setNetStatus('WAITING...');
                 const randomPin = Math.floor(1000 + Math.random() * 9000).toString();
-                const p = new Peer(`math-${randomPin}`);
-                setPlayers([{ id: 'me', name: username, score: 0 }]);
+                const p = new Peer(`math-${randomPin}`, peerConfig);
 
                 p.on('open', id => {
                     setPin(id.replace('math-', '')); setMyPeer(p); setConnected(true); setIsHost(true);
-                    gameRef.current.players = [{ id: 'me', name: username, score: 0 }];
-                    setView('waiting');
+                    const initPlayers = [{ id: 'me', name: username, score: 0 }];
+                    gameRef.current.players = initPlayers; setPlayers(initPlayers);
+                    setNetStatus('ONLINE'); setView('waiting');
                 });
 
                 p.on('connection', c => {
-                    console.log('Peer connected:', c.peer);
                     c.on('data', d => {
                         const g = gameRef.current;
                         if (d.type === 'join') {
                             if (!g.players.find(x => x.id === c.peer)) {
                                 g.players.push({ id: c.peer, name: d.name, score: 0 });
-                                setPlayers([...g.players]);
-                                hostBroadcast({ type: 'plist', p: g.players });
+                                setPlayers([...g.players]); hostBroadcast({ type: 'plist', p: g.players });
                             }
                         }
                         if (d.type === 'ans') {
@@ -368,35 +380,37 @@
                         }
                     });
                     c.on('open', () => {
-                        connsRef.current.push(c);
+                        if (!connsRef.current.find(x => x.peer === c.peer)) connsRef.current.push(c);
                         c.send({ type: 'plist', p: gameRef.current.players });
                     });
                     c.on('close', () => {
                         const g = gameRef.current;
                         g.players = g.players.filter(x => x.id !== c.peer);
                         connsRef.current = connsRef.current.filter(x => x.peer !== c.peer);
-                        setPlayers([...g.players]);
-                        hostBroadcast({ type: 'plist', p: g.players });
+                        setPlayers([...g.players]); hostBroadcast({ type: 'plist', p: g.players });
                     });
                 });
-                p.on('error', err => err.type === 'id-taken' ? startHost() : console.error(err));
+                p.on('error', err => {
+                    if (err.type === 'id-taken') startHost();
+                    else { setNetStatus('ERROR'); console.error(err); }
+                });
             };
 
             const joinRoom = () => {
                 if (!username || !roomCode) return alert('Name & PIN needed!');
-                const p = new Peer(); setMyPeer(p);
+                setNetStatus('JOINING...');
+                const p = new Peer(peerConfig); setMyPeer(p);
                 p.on('open', (id) => {
                     const c = p.connect(`math-${roomCode}`, { reliable: true }); hostConnRef.current = c;
                     c.on('open', () => {
                         c.send({ type: 'join', name: username });
-                        setView('waiting');
-                        setConnected(true);
+                        setView('waiting'); setConnected(true); setNetStatus('CONNECTED');
                     });
                     c.on('data', d => updateInternal(d));
-                    c.on('error', () => { alert('Cannot join room!'); setView('home'); });
-                    c.on('close', () => { alert('Host left!'); window.location.reload(); });
+                    c.on('error', () => { alert('Room not found! Check PIN.'); setNetStatus('FAILED'); setView('home'); });
+                    c.on('close', () => { alert('Host disconnected!'); window.location.reload(); });
                 });
-                p.on('error', e => console.error(e));
+                p.on('error', e => { setNetStatus('ERROR'); console.error(e); });
             };
 
             const updateInternal = d => {
@@ -453,6 +467,9 @@
                                 <span className="text-xl font-brand font-bold tracking-tight navbar-text">MATH<span className="text-indigo-400">MASTER</span></span>
                             </div>
                             <div className="flex gap-4 items-center">
+                                <div className={`px-3 py-1 rounded-full text-[9px] font-black tracking-widest border ${netStatus === 'ONLINE' || netStatus === 'CONNECTED' ? 'bg-green-500/10 border-green-500/30 text-green-400' : 'bg-amber-500/10 border-amber-500/30 text-amber-400'}`}>
+                                    {netStatus}
+                                </div>
                                 <a href="https://www.youtube.com/watch?v=Nbc7scngySc&list=RDNbc7scngySc&start_radio=1" target="_blank" className="text-sm font-bold text-rose-400 hover:text-rose-300 transition-colors uppercase tracking-widest flex items-center gap-2">🎵 <span className="hidden sm:inline">{t.navMusic}</span></a>
                                 <button onClick={() => setLang(l => l === 'TH' ? 'EN' : 'TH')} className="bg-white/5 border border-white/10 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">{t.language}</button>
                             </div>
