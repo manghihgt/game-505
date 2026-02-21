@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MATH MASTER | Online P2P</title>
+    <title>MATH MASTER | Premium Online</title>
     <!-- Dependencies from CDN -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -12,54 +12,161 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap"
+        rel="stylesheet">
     <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --accent: #22d3ee;
+            --bg: #0f172a;
+        }
+
         body {
             font-family: 'Outfit', sans-serif;
-            background: radial-gradient(circle at top left, #1e1b4b, #0f172a);
+            background: var(--bg);
             color: white;
             min-height: 100vh;
             margin: 0;
             overflow-x: hidden;
         }
 
-        .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
+        .font-brand {
+            font-family: 'Space Grotesk', sans-serif;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #6366f1, #a855f7);
+        /* Advanced Background */
+        .bg-mesh {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(168, 85, 247, 0.15) 0%, transparent 50%);
+            overflow: hidden;
+        }
+
+        .math-symbol {
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0.1;
+            color: var(--accent);
+            pointer-events: none;
+            user-select: none;
+        }
+
+        /* Glassmorphism Navbar */
+        .glass-nav {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(15px) saturate(180%);
+            -webkit-backdrop-filter: blur(15px) saturate(180%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 100;
+        }
+
+        .nav-link {
+            position: relative;
+            padding: 8px 16px;
+            font-weight: 500;
             transition: all 0.3s ease;
+            cursor: pointer;
+            opacity: 0.7;
         }
 
-        .btn-primary:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        .nav-link:hover {
+            opacity: 1;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: var(--accent);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 60%;
+        }
+
+        .nav-link.active {
+            opacity: 1;
+            color: var(--accent);
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 32px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .btn-premium {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-premium::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+
+        .btn-premium:hover::before {
+            left: 100%;
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.5);
+        }
+
+        .btn-premium:active {
+            transform: translateY(0) scale(0.98);
         }
 
         .option-btn {
-            height: 80px;
-            font-size: 1.25rem;
+            height: 90px;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
             font-weight: 700;
-            border-radius: 12px;
-            transition: transform 0.2s;
+            border-radius: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .option-btn:active:not(:disabled) {
-            transform: scale(0.95);
-        }
-
+        /* Animations */
         .fade-in {
-            animation: fadeIn 0.5s ease-out;
+            animation: fadeIn 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
         }
 
         @keyframes fadeIn {
             from {
                 opacity: 0;
-                transform: translateY(10px);
+                transform: translateY(20px);
             }
 
             to {
@@ -68,133 +175,123 @@
             }
         }
 
-        .scale-in {
-            animation: scaleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        .hero-glow {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: var(--primary);
+            filter: blur(120px);
+            opacity: 0.2;
+            pointer-events: none;
         }
 
-        @keyframes scaleIn {
-            from {
-                transform: scale(0.8);
-                opacity: 0;
-            }
-
-            to {
-                transform: scale(1);
-                opacity: 1;
-            }
+        ::-webkit-scrollbar {
+            width: 8px;
         }
 
-        .slide-right {
-            animation: slideRight 0.5s ease-out;
+        ::-webkit-scrollbar-track {
+            background: transparent;
         }
 
-        @keyframes slideRight {
-            from {
-                transform: translateX(-20px);
-                opacity: 0;
-            }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
 
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
     </style>
 </head>
 
 <body>
+    <div class="bg-mesh" id="mesh-bg"></div>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+        const { useState, useEffect, useRef, useMemo } = React;
 
-        // --- TRANSLATIONS ---
+        // --- DATA & TRANSLATIONS ---
         const translations = {
             TH: {
+                navHome: "หน้าหลัก",
+                navAbout: "เกี่ยวกับพวกเรา",
                 title: "MATH MASTER",
-                subtitle: "ระบบเกมคณิตศาสตร์ออนไลน์ความเร็วสูง",
-                aboutUs: "เกี่ยวกับพวกเรา",
-                start: "เริ่มต้นเล่นเกม",
-                language: "ภาษา: ไทย",
-                changeLang: "English",
-                nickname: "ชื่อเล่นของคุณ",
-                hostBtn: "สร้างห้องใหม่ (HOST)",
-                joinBtn: "เข้าร่วมห้อง (JOIN)",
-                roomPlaceholder: "ใส่รหัสห้อง (Room ID)",
-                waiting: "กำลังรอผู้เล่นคนอื่น...",
-                startHost: "เริ่มเกมเลย!",
-                copyId: "คัดลอกรหัส",
-                players: "ผู้เล่นทั้งหมด",
-                question: "โจทย์ข้อที่",
-                answered: "ตอบแล้ว",
-                scoreboard: "อันดับคะแนน",
-                preparing: "กำลังเตรียมข้อต่อไป...",
-                victory: "ชัยชนะตกเป็นของ!",
-                champion: "แชมป์เปี้ยน!",
-                backHome: "กลับหน้าหลัก",
+                subtitle: "ระบบเกมคณิตศาสตร์พรีเมียม P2P",
+                start: "เริ่มต้นความมันส์",
+                language: "ภาษา TH",
+                nickname: "ระบุชื่อเล่นของคุณ",
+                hostBtn: "เปิดห้องใหม่",
+                joinBtn: "เข้าร่วมเล่น",
+                roomID: "รหัสเข้าห้อง",
+                waiting: "กำลังรอทุกคน...",
+                startHost: "ปล่อยตัว!",
+                copy: "คัดลอกรหัส",
+                players: "นักสู้เลข",
+                question: "โจทย์ที่",
+                answered: "ส่งคำตอบแล้ว",
+                scoreboard: "กระดานเกียรติยศ",
+                nextSub: "สงครามครั้งถัดไปกำลังมา...",
+                champion: "สุดยอดแชมป์เปี้ยน!",
+                back: "กลับบ้าน",
                 team: [
-                    "นายกรณ์มัฏฐ์ อินดา",
-                    "นายพนกิจ สุรินทร์ต๊ะ",
-                    "นายวุฒิภัทร ทาหย่อง",
-                    "นายศิระกฤษ ศิริวงศ์",
-                    "นายจตุรงค์ จิติโภคประเสริฐ"
+                    { name: "นายกรณ์มัฏฐ์ อินดา", role: "Project Manager" },
+                    { name: "นายพนกิจ สุรินทร์ต๊ะ", role: "UI Designer" },
+                    { name: "นายวุฒิภัทร ทาหย่อง", role: "Frontend Dev" },
+                    { name: "นายศิระกฤษ ศิริวงศ์", role: "Backend Architect" },
+                    { name: "นายจตุรงค์ จิติโภคประเสริฐ", role: "Game Engine" }
                 ]
             },
             EN: {
+                navHome: "Home",
+                navAbout: "About Us",
                 title: "MATH MASTER",
-                subtitle: "High-speed Online Multiplayer Math Game",
-                aboutUs: "About Us",
-                start: "Start Playing",
-                language: "Language: English",
-                changeLang: "ไทย",
-                nickname: "Your Nickname",
-                hostBtn: "HOST GAME",
-                joinBtn: "JOIN GAME",
-                roomPlaceholder: "Enter Room ID",
-                waiting: "Waiting for other players...",
-                startHost: "Start Game!",
-                copyId: "Copy ID",
-                players: "Players",
-                question: "Question",
+                subtitle: "Premium P2P Mathematical Arena",
+                start: "Enter Arena",
+                language: "Language EN",
+                nickname: "Enter Nickname",
+                hostBtn: "HOST ARENA",
+                joinBtn: "JOIN ARENA",
+                roomID: "Arena ID",
+                waiting: "Waiting for warriors...",
+                startHost: "Unleash!",
+                copy: "Copy ID",
+                players: "Mathematical Warriors",
+                question: "Problem",
                 answered: "Answered",
-                scoreboard: "SCOREBOARD",
-                preparing: "Preparing next question...",
-                victory: "Winner Is!",
-                champion: "CHAMPION!",
-                backHome: "Back to Home",
+                scoreboard: "HALL OF FAME",
+                nextSub: "The next battle approaches...",
+                champion: "ULTIMATE CHAMPION!",
+                back: "Go Home",
                 team: [
-                    "Mr. Konmat Inda",
-                    "Mr. Ponkit Surinta",
-                    "Mr. Wuttipat Tayong",
-                    "Mr. Sirakrit Siriwong",
-                    "Mr. Jaturong Jitipokprasert"
+                    { name: "Mr. Konmat Inda", role: "Project Manager" },
+                    { name: "Mr. Ponkit Surinta", role: "UI Designer" },
+                    { name: "Mr. Wuttipat Tayong", role: "Frontend Dev" },
+                    { name: "Mr. Sirakrit Siriwong", role: "Backend Architect" },
+                    { name: "Mr. Jaturong Jitipokprasert", role: "Game Engine" }
                 ]
             }
         };
 
-        // --- MATH LOGIC ---
-        const generateOptions = (correct) => {
-            const options = new Set();
-            options.add(correct);
-            while (options.size < 4) {
-                const offset = (Math.floor(Math.random() * 10) + 1) * (Math.random() > 0.5 ? 1 : -1);
-                const op = correct + offset;
-                if (op >= 0) options.add(op);
-            }
-            return Array.from(options).sort(() => Math.random() - 0.5);
-        };
-
+        // --- MATH ENGINE ---
         const generateQuestion = () => {
-            const a1 = Math.floor(Math.random() * 15) + 1;
-            const d = Math.floor(Math.random() * 8) + 2;
+            const a1 = Math.floor(Math.random() * 20) + 1;
+            const d = Math.floor(Math.random() * 10) + 2;
             const seq = [a1, a1 + d, a1 + d * 2, a1 + d * 3, a1 + d * 4];
             const missingIdx = Math.floor(Math.random() * 5);
             const answer = seq[missingIdx];
             const displaySeq = [...seq];
             displaySeq[missingIdx] = '___';
+
+            const options = new Set([answer]);
+            while (options.size < 4) {
+                const off = (Math.floor(Math.random() * 10) + 1) * (Math.random() > 0.5 ? 1 : -1);
+                if (answer + off >= 0) options.add(answer + off);
+            }
+
             return {
-                question: `${displaySeq.join(', ')}`,
-                options: generateOptions(answer),
+                q: `${displaySeq.join(', ')}`,
+                options: Array.from(options).sort(() => Math.random() - 0.5),
                 answer
             };
         };
@@ -210,341 +307,346 @@
             const [username, setUsername] = useState(localStorage.getItem('math_name') || '');
             const [roomCode, setRoomCode] = useState('');
             const [players, setPlayers] = useState([]);
-            const [currentQuestion, setCurrentQuestion] = useState(null);
+            const [currentQ, setCurrentQ] = useState(null);
             const [timer, setTimer] = useState(30);
             const [hasAnswered, setHasAnswered] = useState(false);
-            const [answersCount, setAnswersCount] = useState({ received: 0, total: 0 });
+            const [answersCount, setAnswersCount] = useState({ r: 0, t: 0 });
             const [leaderboard, setLeaderboard] = useState([]);
-            const [winnerList, setWinnerList] = useState([]);
+            const [winners, setWinners] = useState([]);
 
-            const connectionsRef = useRef([]);
+            const connsRef = useRef([]);
             const hostConnRef = useRef(null);
-            const gameRef = useRef({
-                questions: [],
-                idx: 0,
-                players: [],
-                received: 0,
-                timerId: null
-            });
+            const gameRef = useRef({ questions: [], idx: 0, players: [], r: 0, tId: null });
 
             const t = translations[lang];
 
-            // Initialize Peer on demand or start
+            // --- DECORATIVE BACKGROUND ---
             useEffect(() => {
-                const peer = new Peer();
-                peer.on('open', (id) => {
-                    setMyPeer(peer);
-                    setPeerId(id);
-                    setConnected(true);
-                });
-                peer.on('error', () => setConnected(false));
-
-                const params = new URLSearchParams(window.location.search);
-                const r = params.get('room');
-                if (r) {
-                    setRoomCode(r);
-                    setView('home');
+                const bg = document.getElementById('mesh-bg');
+                const symbols = ['Σ', 'π', '∞', '√', '∫', 'Δ', '+', '×', '÷', '='];
+                for (let i = 0; i < 20; i++) {
+                    const el = document.createElement('div');
+                    el.className = 'math-symbol';
+                    el.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+                    el.style.left = `${Math.random() * 100}%`;
+                    el.style.top = `${Math.random() * 100}%`;
+                    bg.appendChild(el);
+                    gsap.to(el, {
+                        y: '+=50',
+                        x: '+=30',
+                        rotation: Math.random() * 360,
+                        duration: 10 + Math.random() * 20,
+                        repeat: -1,
+                        yoyo: true,
+                        ease: "sine.inOut"
+                    });
                 }
-                return () => peer.destroy();
+            }, []);
+
+            // --- PEER INITIALIZATION ---
+            useEffect(() => {
+                const p = new Peer();
+                p.on('open', id => { setMyPeer(p); setPeerId(id); setConnected(true); });
+                p.on('error', () => setConnected(false));
+                const r = new URLSearchParams(window.location.search).get('room');
+                if (r) { setRoomCode(r); setView('home'); }
+                return () => p.destroy();
             }, []);
 
             useEffect(() => {
                 if (!myPeer || !isHost) return;
-                myPeer.on('connection', (conn) => {
-                    conn.on('open', () => {
-                        conn.on('data', (data) => handleHostMessage(conn, data));
-                        connectionsRef.current.push(conn);
+                myPeer.on('connection', c => {
+                    c.on('open', () => {
+                        c.on('data', d => handleHostData(c, d));
+                        connsRef.current.push(c);
                     });
                 });
             }, [myPeer, isHost]);
 
-            const handleHostMessage = (conn, data) => {
+            const handleHostData = (c, d) => {
                 const g = gameRef.current;
-                if (data.type === 'join') {
-                    if (g.players.length >= 10) return conn.send({ type: 'error', msg: 'Room full' });
-                    const p = { id: conn.peer, name: data.name, score: 0 };
+                if (d.type === 'join') {
+                    if (g.players.length >= 10) return c.send({ type: 'err', m: 'Full' });
+                    const p = { id: c.peer, name: d.name, score: 0 };
                     g.players.push(p);
                     setPlayers([...g.players]);
-                    hostBroadcast({ type: 'player_list', players: g.players });
+                    hostBroadcast({ type: 'plist', p: g.players });
                 }
-                if (data.type === 'answer') {
-                    const player = g.players.find(p => p.id === conn.peer);
-                    if (player && !player.answered) {
-                        player.answered = true;
-                        if (data.answer === g.questions[g.idx].answer) player.score += 1;
-                        g.received++;
-                        hostBroadcast({ type: 'answer_update', received: g.received, total: g.players.length });
-                        if (g.received === g.players.length) {
-                            clearTimeout(g.timerId);
-                            showLeaderboard();
-                        }
+                if (d.type === 'ans') {
+                    const p = g.players.find(x => x.id === c.peer);
+                    if (p && !p.ans) {
+                        p.ans = true;
+                        if (d.v === g.questions[g.idx].answer) p.score += 1;
+                        g.r++;
+                        hostBroadcast({ type: 'aupd', r: g.r, t: g.players.length });
+                        if (g.r === g.players.length) { clearTimeout(g.tId); showLeaderboard(); }
                     }
                 }
             };
 
-            const hostBroadcast = (data) => {
-                connectionsRef.current.forEach(c => c.send(data));
-                processHostUpdate(data);
+            const hostBroadcast = (d) => { connsRef.current.forEach(c => c.send(d)); updateInternal(d); };
+
+            const updateInternal = (d) => {
+                if (d.type === 'plist') setPlayers(d.p);
+                if (d.type === 'nextq') {
+                    setCurrentQ(d); setView('playing'); setHasAnswered(false); setTimer(30);
+                    setAnswersCount({ r: 0, t: gameRef.current.players.length });
+                }
+                if (d.type === 'aupd') setAnswersCount({ r: d.r, t: d.t });
+                if (d.type === 'lbd') { setLeaderboard([...d.p]); setView('leaderboard'); }
+                if (d.type === 'gov') { setWinners(d.rank); setView('gameover'); confetti({ particleCount: 200, spread: 80 }); }
             };
 
-            const processHostUpdate = (data) => {
-                if (data.type === 'player_list') setPlayers(data.players);
-                if (data.type === 'next_q') {
-                    setCurrentQuestion(data);
-                    setView('playing');
-                    setHasAnswered(false);
-                    setTimer(30);
-                    setAnswersCount({ received: 0, total: gameRef.current.players.length });
-                }
-                if (data.type === 'answer_update') setAnswersCount({ received: data.received, total: data.total });
-                if (data.type === 'leaderboard') {
-                    setLeaderboard([...data.players]);
-                    setView('leaderboard');
-                }
-                if (data.type === 'game_over') {
-                    setWinnerList(data.ranking);
-                    setView('gameover');
-                    confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 } });
-                }
-            };
-
-            const createRoom = () => {
+            const startHost = () => {
                 setIsHost(true);
-                const initialPlayers = [{ id: 'me', name: username, score: 0 }];
-                gameRef.current.players = initialPlayers;
-                setPlayers(initialPlayers);
+                const p = [{ id: 'me', name: username, score: 0 }];
+                gameRef.current.players = p;
+                setPlayers(p);
                 setView('waiting');
             };
 
-            const hostStartGame = () => {
-                if (players.length < 2) return alert(lang === 'TH' ? 'ต้องการอย่างน้อย 2 คน' : 'Need at least 2 players');
+            const startGameHost = () => {
+                if (players.length < 2) return alert(t.waiting);
                 const g = gameRef.current;
                 g.questions = Array.from({ length: 10 }, () => generateQuestion());
                 g.idx = 0;
-                sendNextQuestion();
+                sendNext();
             };
 
-            const sendNextQuestion = () => {
+            const sendNext = () => {
                 const g = gameRef.current;
                 if (g.idx < 10) {
-                    g.received = 0;
-                    g.players.forEach(p => p.answered = false);
-                    const qData = g.questions[g.idx];
-                    hostBroadcast({
-                        type: 'next_q',
-                        question: qData.question,
-                        options: qData.options,
-                        num: g.idx + 1,
-                        total: 10
-                    });
-                    g.timerId = setTimeout(showLeaderboard, 30000);
+                    g.r = 0; g.players.forEach(x => x.ans = false);
+                    hostBroadcast({ type: 'nextq', q: g.questions[g.idx].q, opts: g.questions[g.idx].options, n: g.idx + 1 });
+                    g.idx++; g.tId = setTimeout(showLeaderboard, 30500);
                 } else {
-                    const sorted = [...g.players].sort((a, b) => b.score - a.score);
-                    hostBroadcast({ type: 'game_over', ranking: sorted.slice(0, 5) });
+                    hostBroadcast({ type: 'gov', rank: [...g.players].sort((a, b) => b.score - a.score).slice(0, 5) });
                 }
             };
 
             const showLeaderboard = () => {
-                const g = gameRef.current;
-                const sorted = [...g.players].sort((a, b) => b.score - a.score);
-                hostBroadcast({ type: 'leaderboard', players: sorted });
-                g.idx++;
-                setTimeout(sendNextQuestion, 5000);
+                hostBroadcast({ type: 'lbd', p: [...gameRef.current.players].sort((a, b) => b.score - a.score) });
+                setTimeout(sendNext, 5000);
             };
 
             const joinRoom = () => {
-                if (!roomCode) return alert('Enter Room ID');
-                const conn = myPeer.connect(roomCode);
-                hostConnRef.current = conn;
-                conn.on('open', () => {
-                    conn.send({ type: 'join', name: username });
-                    setView('waiting');
-                });
-                conn.on('data', (data) => processHostUpdate(data));
-                conn.on('close', () => alert('Host disconnected'));
+                const c = myPeer.connect(roomCode);
+                hostConnRef.current = c;
+                c.on('open', () => { c.send({ type: 'join', name: username }); setView('waiting'); });
+                c.on('data', d => updateInternal(d));
             };
 
-            const submitAnswer = (val) => {
+            const submit = (v) => {
                 setHasAnswered(true);
                 if (isHost) {
-                    const g = gameRef.current;
-                    const p = g.players.find(p => p.id === 'me');
-                    p.answered = true;
-                    if (val === g.questions[g.idx].answer) p.score += 1;
-                    g.received++;
-                    hostBroadcast({ type: 'answer_update', received: g.received, total: g.players.length });
-                    if (g.received === g.players.length) {
-                        clearTimeout(g.timerId);
-                        showLeaderboard();
-                    }
-                } else {
-                    hostConnRef.current.send({ type: 'answer', answer: val });
-                }
-            };
-
-            const toggleLang = () => {
-                const newLang = lang === 'TH' ? 'EN' : 'TH';
-                setLang(newLang);
-                localStorage.setItem('math_lang', newLang);
+                    const g = gameRef.current; const p = g.players.find(x => x.id === 'me');
+                    p.ans = true; if (v === g.questions[g.idx - 1].answer) p.score += 1;
+                    g.r++; hostBroadcast({ type: 'aupd', r: g.r, t: g.players.length });
+                    if (g.r === g.players.length) { clearTimeout(g.tId); showLeaderboard(); }
+                } else hostConnRef.current.send({ type: 'ans', v });
             };
 
             useEffect(() => {
-                let itv;
-                if (view === 'playing' && timer > 0) itv = setInterval(() => setTimer(t => t - 1), 1000);
-                return () => clearInterval(itv);
+                if (view === 'playing' && timer > 0) {
+                    const itv = setInterval(() => setTimer(s => s - 1), 1000);
+                    return () => clearInterval(itv);
+                }
             }, [view, timer]);
 
             useEffect(() => { localStorage.setItem('math_name', username); }, [username]);
 
-            // --- UI SCREENS ---
-
-            if (view === 'landing') return (
-                <div className="min-h-screen flex flex-col items-center justify-center p-6 fade-in text-center">
-                    <div className="mb-12 scale-in">
-                        <h1 className="text-7xl font-black italic mb-4 bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">MATH MASTER</h1>
-                        <p className="text-xl opacity-60 font-light tracking-wide">{t.subtitle}</p>
-                    </div>
-
-                    <div className="flex flex-col gap-4 w-full max-w-sm scale-in">
-                        <button onClick={() => setView('home')} className="btn-primary p-6 rounded-2xl font-bold text-2xl shadow-xl shadow-indigo-500/20">{t.start}</button>
-                        <button onClick={() => setView('about')} className="bg-white/5 border border-white/10 p-4 rounded-xl font-bold hover:bg-white/10 transition-all">{t.aboutUs}</button>
-                        <button onClick={toggleLang} className="opacity-40 text-sm hover:opacity-100 transition-all">{t.language} ({t.changeLang})</button>
-                    </div>
-
-                    <div className="mt-20 opacity-20 text-[10px] uppercase tracking-widest font-bold">
-                        Powered by PeerJS Serverless Technology
-                    </div>
-                </div>
-            );
-
-            if (view === 'about') return (
-                <div className="min-h-screen flex items-center justify-center p-6 slide-right">
-                    <div className="max-w-md w-full glass-card p-10 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-4 opacity-10 font-black text-6xl">TEAM</div>
-                        <h2 className="text-4xl font-black mb-8 border-b border-white/10 pb-4">{t.aboutUs}</h2>
-                        <ul className="space-y-4">
-                            {t.team.map((name, i) => (
-                                <li key={i} className="flex items-center gap-4 group">
-                                    <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-bold group-hover:bg-indigo-500 group-hover:text-white transition-all">{i + 1}</div>
-                                    <span className="text-lg font-medium opacity-80">{name}</span>
-                                </li>
-                            ))}
-                        </ul>
-                        <button onClick={() => setView('landing')} className="mt-10 w-full p-4 rounded-xl border border-white/10 font-bold hover:bg-white/5 transition-all">{t.backHome}</button>
-                    </div>
-                </div>
-            );
-
-            if (view === 'home') return (
-                <div className="max-w-md mx-auto pt-32 p-8 fade-in">
-                    <div className="fixed top-4 right-4 flex items-center gap-2 px-3 py-1 glass-card border-none text-[10px] font-bold">
-                        <div className={`w-2 h-2 rounded-full ${connected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
-                        {connected ? 'SERVERLESS ONLINE' : 'INITIALIZING...'}
-                    </div>
-                    <div className="glass-card p-10 text-center shadow-2xl relative">
-                        <button onClick={() => setView('landing')} className="absolute top-4 left-4 opacity-40 hover:opacity-100 text-xs">← {t.backHome}</button>
-                        <h1 className="text-4xl font-black mb-10 italic text-cyan-400">MATH MASTER</h1>
-                        <input className="w-full bg-white/5 border border-white/10 p-4 rounded-xl mb-4 outline-none focus:border-cyan-500 font-bold" placeholder={t.nickname} value={username} onChange={e => setUsername(e.target.value)} />
-                        <button onClick={createRoom} disabled={!connected || !username} className="w-full btn-primary p-4 rounded-xl font-bold text-lg mb-6 active:scale-95 disabled:opacity-30">{t.hostBtn}</button>
-                        <div className="border-t border-white/10 pt-6 text-center">
-                            <input className="w-full bg-white/5 border border-white/10 p-4 rounded-xl mb-4 outline-none focus:border-cyan-500" placeholder={t.roomPlaceholder} value={roomCode} onChange={e => setRoomCode(e.target.value)} />
-                            <button onClick={joinRoom} disabled={!connected || !username || !roomCode} className="w-full border border-white/20 p-4 rounded-xl font-bold hover:bg-white/5 disabled:opacity-30">{t.joinBtn}</button>
+            // --- UI COMPONENTS ---
+            const Navbar = () => (
+                <nav className="glass-nav">
+                    <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+                        <div className="flex items-center gap-2 cursor-pointer" onClick={() => setView('landing')}>
+                            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center font-black text-xl shadow-lg border border-white/10">M</div>
+                            <span className="text-xl font-brand font-bold tracking-tighter">MATH<span className="text-indigo-400">MASTER</span></span>
                         </div>
-                    </div>
-                </div>
-            );
-
-            if (view === 'waiting') return (
-                <div className="max-w-xl mx-auto mt-20 p-8 fade-in text-center">
-                    <div className="glass-card p-10 mb-6 bg-gradient-to-br from-indigo-500/10 to-transparent border-t-4 border-indigo-500 shadow-2xl">
-                        <p className="text-xs font-bold tracking-widest text-indigo-400 uppercase mb-2">Room ID</p>
-                        <h2 className="text-3xl font-mono bg-white/10 p-4 rounded-xl overflow-hidden break-all select-all font-bold tracking-tighter">{peerId || roomCode}</h2>
-                        <button onClick={() => { navigator.clipboard.writeText(peerId || roomCode); alert('ID Copied!') }} className="text-[10px] mt-4 opacity-50 underline">{t.copyId}</button>
-                    </div>
-                    <div className="glass-card p-8 text-left">
-                        <div className="flex justify-between items-center mb-8 border-b border-white/5 pb-4">
-                            <h3 className="text-2xl font-black tracking-tighter italic uppercase">{t.players} ({players.length}/10)</h3>
-                            {isHost && <button onClick={hostStartGame} className="btn-primary px-10 py-3 rounded-2xl font-black uppercase text-sm tracking-widest animate-pulse border-2 border-white/10">{t.startHost}</button>}
+                        <div className="hidden md:flex items-center gap-8">
+                            <span className={`nav-link ${view === 'landing' || view === 'home' ? 'active' : ''}`} onClick={() => setView('landing')}>{t.navHome}</span>
+                            <span className={`nav-link ${view === 'about' ? 'active' : ''}`} onClick={() => setView('about')}>{t.navAbout}</span>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            {players.map((p, i) => (
-                                <div key={i} className="p-4 bg-white/5 rounded-2xl border border-white/10 flex items-center gap-3 slide-up">
-                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs ${i % 2 === 0 ? 'bg-cyan-500' : 'bg-purple-500'}`}>{p.name[0]}</div>
-                                    <span className="font-bold text-sm tracking-tight">{p.name} {p.id === 'me' && '(You)'}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            );
-
-            if (view === 'playing') return (
-                <div className="max-w-4xl mx-auto mt-12 p-6 fade-in">
-                    <div className="flex justify-between items-center mb-8">
-                        <div className="glass-card px-6 py-3 flex items-center gap-6 border-none shadow-xl scale-in">
-                            <span className="text-indigo-400 font-extrabold text-xl tracking-tighter flex items-center gap-2">
-                                <span className="text-[10px] uppercase opacity-40">Q</span>{currentQuestion.num}/10
-                            </span>
-                            <span className={`text-2xl font-black ${timer < 5 ? 'text-rose-500 animate-bounce' : 'text-yellow-400'}`}>⏱ {timer}s</span>
-                            <div className="flex items-center gap-1 bg-white/10 rounded-full px-3 py-1">
-                                <span className="text-emerald-400 font-black text-xs">✓ {answersCount.received}/{answersCount.total}</span>
-                                <span className="text-[10px] opacity-40 font-bold uppercase">{t.answered}</span>
+                        <div className="flex items-center gap-4">
+                            <button onClick={() => { setLang(l => l === 'TH' ? 'EN' : 'TH'); localStorage.setItem('math_lang', lang === 'TH' ? 'EN' : 'TH'); }}
+                                className="bg-white/5 border border-white/10 px-4 py-2 rounded-full text-xs font-bold hover:bg-indigo-600/20 transition-all">
+                                {t.language}
+                            </button>
+                            <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/5">
+                                <div className={`w-2 h-2 rounded-full ${connected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
+                                <span className="text-[10px] font-bold opacity-60">P2P</span>
                             </div>
                         </div>
-                        <div className="font-black text-indigo-400 border-r-4 border-indigo-500 pr-4">{username}</div>
                     </div>
-                    <div className="glass-card p-16 text-center mb-10 border-b-[16px] border-indigo-600 min-h-[250px] flex items-center justify-center shadow-inner relative overflow-hidden">
-                        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-20 animate-pulse"></div>
-                        <h2 className="text-6xl font-black whitespace-pre-wrap leading-none tracking-tighter">{currentQuestion.question}</h2>
-                    </div>
-                    <div className="grid grid-cols-2 gap-6">
-                        {currentQuestion.options.map((opt, i) => (
-                            <button key={i} onClick={() => submitAnswer(opt)} disabled={hasAnswered} className={`option-btn shadow-2xl text-3xl font-black border-b-4 border-black/20 ${['bg-rose-500', 'bg-sky-500', 'bg-amber-500', 'bg-emerald-500'][i]} ${hasAnswered ? 'opacity-20 grayscale cursor-not-allowed' : 'hover:scale-[1.02] active:scale-95 transition-all'}`}>{opt}</button>
-                        ))}
-                    </div>
-                    {hasAnswered && <div className="text-center mt-12 text-cyan-400 font-black text-xl tracking-widest animate-pulse italic lowercase">{t.waiting}</div>}
-                </div>
+                </nav>
             );
 
-            if (view === 'leaderboard') return (
-                <div className="max-w-xl mx-auto mt-16 p-8 fade-in">
-                    <h2 className="text-5xl font-black text-center mb-10 italic tracking-tighter bg-gradient-to-b from-white to-white/20 bg-clip-text text-transparent">{t.scoreboard}</h2>
-                    <div className="space-y-4">
-                        {leaderboard.map((p, i) => (
-                            <div key={i} className={`p-6 glass-card flex justify-between items-center slide-up ${i === 0 ? 'bg-indigo-500/20 border-indigo-500 shadow-indigo-500/20 shadow-2xl scale-105' : ''}`} style={{ animationDelay: `${i * 0.1}s` }}>
-                                <div className="flex items-center gap-6 font-bold">
-                                    <span className="text-4xl font-black opacity-10">#{i + 1}</span>
-                                    <span className="text-2xl tracking-tighter uppercase italic">{p.name}</span>
-                                </div>
-                                <div className="text-4xl font-black text-indigo-400 drop-shadow-lg">{p.score} <span className="text-xs uppercase opacity-30 font-bold">pts</span></div>
+            return (
+                <div className="relative pt-24 pb-12 min-h-screen selection:bg-indigo-500 selection:text-white">
+                    <Navbar />
+
+                    {view === 'landing' && (
+                        <main className="max-w-6xl mx-auto px-6 flex flex-col items-center justify-center min-h-[70vh] fade-in text-center">
+                            <div className="hero-glow" style={{ top: '20%', left: '30%' }}></div>
+                            <h1 className="text-7xl md:text-9xl font-brand font-black italic tracking-tighter mb-6 scale-in uppercase">
+                                <span className="bg-gradient-to-b from-white to-white/40 bg-clip-text text-transparent">Challenge</span><br />
+                                <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Everything.</span>
+                            </h1>
+                            <p className="text-xl md:text-2xl opacity-40 mb-12 font-light max-w-2xl mx-auto">{t.subtitle}</p>
+                            <button onClick={() => setView('home')} className="btn-premium px-12 py-5 rounded-3xl font-brand font-bold text-2xl uppercase tracking-widest">{t.start}</button>
+                            <div className="mt-24 grid grid-cols-2 md:grid-cols-4 gap-8 opacity-20 text-[10px] font-black tracking-[0.3em]">
+                                <span>SERVERLESS P2P</span>
+                                <span>GHSAP ANIMATED</span>
+                                <span>GLASSMORPISM UI</span>
+                                <span>MATH ENGINE 2.0</span>
                             </div>
-                        ))}
-                    </div>
-                    <div className="text-center mt-12 opacity-50 italic animate-pulse font-bold tracking-widest text-xs uppercase">{t.preparing}</div>
-                </div>
-            );
+                        </main>
+                    )}
 
-            if (view === 'gameover') return (
-                <div className="max-w-2xl mx-auto mt-20 p-10 fade-in text-center">
-                    <h1 className="text-7xl font-black italic mb-12 tracking-tighter text-indigo-500 uppercase">{t.champion}</h1>
-                    <div className="space-y-4 mb-16 max-w-md mx-auto">
-                        {winnerList.map((p, i) => (
-                            <div key={i} className={`flex items-center justify-between p-6 glass-card border-none slide-up ${i === 0 ? 'scale-110 bg-gradient-to-r from-yellow-500/30 to-transparent border-l-8 border-yellow-500 shadow-gold' : ''}`} style={{ animationDelay: `${i * 0.1}s` }}>
-                                <div className="flex items-center gap-6">
-                                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-2xl ${i === 0 ? 'bg-yellow-500 text-black' : i === 1 ? 'bg-slate-300 text-black' : i === 2 ? 'bg-amber-600 text-black' : 'bg-white/10'}`}>
-                                        {i === 0 ? '1st' : i === 1 ? '2nd' : i === 2 ? '3rd' : `${i + 1}th`}
+                    {view === 'about' && (
+                        <div className="max-w-4xl mx-auto px-6 mt-10 grid md:grid-cols-2 gap-12 items-center fade-in">
+                            <div>
+                                <h1 className="text-6xl font-brand font-black mb-6 italic">{t.navAbout}</h1>
+                                <p className="text-lg opacity-40 mb-8 leading-relaxed">
+                                    We are a team of mathematics and technology enthusiasts dedicated to building the ultimate competitive platform for numerical masters.
+                                </p>
+                                <button onClick={() => setView('landing')} className="text-indigo-400 font-bold hover:underline">← {t.back}</button>
+                            </div>
+                            <div className="space-y-4">
+                                {t.team.map((m, i) => (
+                                    <div key={i} className="glass-card p-6 flex items-center justify-between group hover:border-indigo-500/50 transition-all duration-500 translate-x-4 opacity-0"
+                                        style={{ animation: `slideRight 0.5s ease-out forwards ${i * 0.1}s` }}>
+                                        <div className="flex items-center gap-4">
+                                            <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-black group-hover:bg-indigo-500 group-hover:text-white transition-all">{i + 1}</div>
+                                            <div>
+                                                <div className="font-bold text-lg">{m.name}</div>
+                                                <div className="text-[10px] uppercase tracking-widest opacity-40">{m.role}</div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <span className="text-2xl font-black tracking-tighter italic uppercase">{p.name}</span>
-                                </div>
-                                <span className="text-3xl font-black opacity-40">{p.score} <span className="text-xs">pts</span></span>
+                                ))}
                             </div>
-                        ))}
-                    </div>
-                    <button onClick={() => window.location.reload()} className="btn-primary px-12 py-5 rounded-3xl font-black text-2xl shadow-2xl shadow-indigo-500/40 hover:rotate-1 tracking-tighter uppercase">{t.backHome}</button>
+                        </div>
+                    )}
+
+                    {view === 'home' && (
+                        <div className="max-w-md mx-auto px-6 mt-20 fade-in">
+                            <div className="glass-card p-10 text-center shadow-emerald-500/5">
+                                <h2 className="text-3xl font-brand font-black mb-10 tracking-tight italic bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent uppercase">{t.title}</h2>
+                                <input className="w-full bg-white/5 border border-white/10 p-5 rounded-2xl mb-4 outline-none focus:border-indigo-500 transition-all font-bold placeholder:opacity-30"
+                                    placeholder={t.nickname} value={username} onChange={e => setUsername(e.target.value)} />
+                                <button onClick={startHost} disabled={!connected || !username}
+                                    className="w-full btn-premium p-5 rounded-2xl font-bold text-lg mb-6 active:scale-95 disabled:opacity-30 uppercase tracking-widest">{t.hostBtn}</button>
+                                <div className="relative mb-6">
+                                    <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10"></div></div>
+                                    <div className="relative flex justify-center text-[10px] font-black uppercase"><span className="bg-[#0f172a] px-4 opacity-20">OR</span></div>
+                                </div>
+                                <input className="w-full bg-white/5 border border-white/10 p-5 rounded-2xl mb-4 outline-none focus:border-indigo-500 font-bold placeholder:opacity-30 text-center"
+                                    placeholder={t.roomID} value={roomCode} onChange={e => setRoomCode(e.target.value)} />
+                                <button onClick={joinRoom} disabled={!connected || !username || !roomCode}
+                                    className="w-full border border-white/10 p-5 rounded-2xl font-bold hover:bg-white/5 active:scale-95 disabled:opacity-30 uppercase tracking-widest">{t.joinBtn}</button>
+                            </div>
+                        </div>
+                    )}
+
+                    {view === 'waiting' && (
+                        <div className="max-w-4xl mx-auto px-6 mt-10 grid md:grid-cols-5 gap-8 fade-in">
+                            <div className="md:col-span-2 space-y-6">
+                                <div className="glass-card p-8 bg-gradient-to-br from-indigo-500/10 to-transparent">
+                                    <div className="text-[10px] font-black opacity-30 uppercase tracking-[0.2em] mb-4">Arena Code</div>
+                                    <h2 className="text-2xl font-mono font-bold break-all bg-black/20 p-4 rounded-xl mb-4 copy-target">{peerId || roomCode}</h2>
+                                    <button onClick={() => { navigator.clipboard.writeText(peerId || roomCode); alert('Arena ID Copied!'); }}
+                                        className="w-full py-2 rounded-lg bg-indigo-500/10 text-indigo-400 font-bold text-xs uppercase hover:bg-indigo-500 transition-all hover:text-white">{t.copy}</button>
+                                </div>
+                                {isHost && (
+                                    <button onClick={startGameHost} className="w-full btn-premium py-6 rounded-3xl font-brand font-black text-2xl uppercase tracking-widest animate-pulse border-4 border-indigo-500/20">{t.startHost}</button>
+                                )}
+                            </div>
+                            <div className="md:col-span-3">
+                                <h3 className="text-4xl font-brand font-black italic mb-8 uppercase tracking-tighter">{t.players} · {players.length}</h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {players.map((p, i) => (
+                                        <div key={i} className="p-5 glass-card flex items-center gap-4 bg-white/5 border-white/5 slide-up" style={{ animation: `fadeIn 0.5s ease-out forwards ${i * 0.1}s` }}>
+                                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center font-black text-white">{p.name[0]}</div>
+                                            <span className="font-bold tracking-tight">{p.name} {p.id === 'me' && '🎮'}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {view === 'playing' && (
+                        <div className="max-w-5xl mx-auto px-6 fade-in">
+                            <div className="flex justify-between items-end mb-10">
+                                <div>
+                                    <div className="text-[10px] font-black opacity-30 uppercase tracking-[0.3em] mb-2">{t.players} · {username}</div>
+                                    <div className="text-5xl font-brand font-black tracking-tighter italic text-indigo-400 uppercase">{t.question} {currentQ.n}/10</div>
+                                </div>
+                                <div className="flex gap-4">
+                                    <div className="glass-card px-8 py-4 flex flex-col items-center border-none">
+                                        <div className="text-[10px] font-black opacity-30 mb-1 uppercase">TIMER</div>
+                                        <div className={`text-3xl font-black ${timer < 5 ? 'text-rose-500 animate-ping' : 'text-yellow-400'}`}>{timer}s</div>
+                                    </div>
+                                    <div className="glass-card px-8 py-4 flex flex-col items-center border-none">
+                                        <div className="text-[10px] font-black opacity-30 mb-1 uppercase">{t.answered}</div>
+                                        <div className="text-3xl font-black text-emerald-400">{answersCount.r}/{answersCount.t}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div className="glass-card p-16 md:p-24 text-center mb-10 shadow-2xl relative overflow-hidden group">
+                                <div className="absolute top-0 left-0 w-full h-2 bg-indigo-500 group-hover:h-3 transition-all duration-700"></div>
+                                <h2 className="text-7xl md:text-9xl font-brand font-black tracking-tighter italic">{currentQ.q}</h2>
+                            </div>
+                            <div className="grid grid-cols-2 gap-6 scale-in">
+                                {currentQ.opts.map((o, i) => (
+                                    <button key={i} onClick={() => submit(o)} disabled={hasAnswered}
+                                        className={`option-btn shadow-2xl border-b-8 border-black/20 ${['bg-indigo-600', 'bg-purple-600', 'bg-cyan-600', 'bg-rose-600'][i]} ${hasAnswered ? 'opacity-10 grayscale cursor-not-allowed' : 'hover:-translate-y-2 hover:brightness-110'}`}>{o}</button>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    {view === 'leaderboard' && (
+                        <div className="max-w-2xl mx-auto px-6 text-center fade-in">
+                            <h2 className="text-6xl font-brand font-black italic mb-12 tracking-tighter uppercase underline decoration-indigo-500 decoration-8 underline-offset-8">{t.scoreboard}</h2>
+                            <div className="space-y-4">
+                                {leaderboard.map((p, i) => (
+                                    <div key={i} className={`p-8 glass-card flex justify-between items-center slide-up ${i === 0 ? 'bg-indigo-500/20 border-indigo-500/50 scale-105 shadow-2xl shadow-indigo-500/10' : ''}`}>
+                                        <div className="flex items-center gap-6">
+                                            <span className="text-5xl font-brand font-black opacity-5 italic">#{i + 1}</span>
+                                            <span className="text-2xl font-black uppercase italic tracking-tighter">{p.name}</span>
+                                        </div>
+                                        <div className="text-4xl font-brand font-black text-indigo-400">{p.score} <span className="text-xs uppercase opacity-20">pts</span></div>
+                                    </div>
+                                ))}
+                            </div>
+                            <p className="mt-16 text-indigo-400 font-black animate-pulse uppercase tracking-[0.3em] font-brand">{t.nextSub}</p>
+                        </div>
+                    )}
+
+                    {view === 'gameover' && (
+                        <div className="max-w-3xl mx-auto px-6 text-center mt-10 scale-in">
+                            <div className="text-9xl mb-12 animate-bounce">👑</div>
+                            <h1 className="text-8xl font-brand font-black italic mb-4 tracking-tighter bg-gradient-to-b from-indigo-400 to-purple-500 bg-clip-text text-transparent uppercase">{t.champion}</h1>
+                            <div className="space-y-4 mb-20">
+                                {winners.map((p, i) => (
+                                    <div key={i} className={`glass-card p-6 flex justify-between items-center transition-all ${i === 0 ? 'scale-110 border-indigo-500 bg-indigo-500/10 mb-8' : 'opacity-60'}`}>
+                                        <div className="flex items-center gap-6">
+                                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-brand font-black text-2xl ${i === 0 ? 'bg-indigo-500' : i === 1 ? 'bg-slate-400' : i === 2 ? 'bg-amber-700' : 'bg-white/10'}`}>
+                                                {i === 0 ? '1st' : i === 1 ? '2nd' : i === 2 ? '3rd' : `${i + 1}th`}
+                                            </div>
+                                            <span className="text-3xl font-brand font-black uppercase italic tracking-tighter">{p.name}</span>
+                                        </div>
+                                        <span className="text-4xl font-brand font-black opacity-30">{p.score} pts</span>
+                                    </div>
+                                ))}
+                            </div>
+                            <button onClick={() => window.location.reload()} className="btn-premium px-16 py-6 rounded-3xl font-brand font-black text-3xl uppercase tracking-widest">{t.back}</button>
+                        </div>
+                    )}
                 </div>
             );
-
-            return null;
         }
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
