@@ -167,7 +167,6 @@
             padding: 0;
         }
 
-        /* Kahoot Lobby Specific Styles */
         .kahoot-pin-box {
             background: white;
             color: #333;
@@ -233,7 +232,6 @@
             width: 100%;
         }
 
-        /* Mobile specific join UI */
         .mobile-join-input {
             width: 100%;
             padding: 15px;
@@ -290,7 +288,7 @@
             <div class="menubar-item font-bold">MathMaster</div>
         </div>
         <div class="menubar-right text-xs">
-            <div class="menubar-item" id="time-display">21:05</div>
+            <div class="menubar-item" id="time-display">00:00</div>
             <div class="menubar-item">🔋 100%</div>
             <div class="menubar-item">📶</div>
         </div>
@@ -317,7 +315,7 @@
                 scoreboard: "อันดับ",
                 back: "กลับ",
                 pinLabel: "Game PIN:",
-                joinAt: "Join at www.kahoot.it or with the Kahoot! app"
+                joinAt: "เข้าร่วมที่ URL นี้"
             },
             EN: {
                 title: "MATH MASTER",
@@ -334,7 +332,7 @@
                 scoreboard: "Scoreboard",
                 back: "Back",
                 pinLabel: "Game PIN:",
-                joinAt: "Join at www.kahoot.it or with the Kahoot! app"
+                joinAt: "Join at this URL"
             }
         };
 
@@ -384,18 +382,43 @@
             const [answersCount, setAnswersCount] = useState({ r: 0, t: 0 });
             const [leaderboard, setLeaderboard] = useState([]);
             const [winners, setWinners] = useState([]);
+            const [netStatus, setNetStatus] = useState('OFFLINE');
 
             const connsRef = useRef([]);
             const hostConnRef = useRef(null);
             const gameRef = useRef({ questions: [], idx: 0, players: [], r: 0, tId: null });
 
+            const peerConfig = {
+                host: '0.peerjs.com',
+                port: 443,
+                secure: true,
+                config: {
+                    'iceServers': [
+                        { 'urls': 'stun:stun.l.google.com:19302' },
+                        { 'urls': 'stun:stun1.l.google.com:19302' }
+                    ]
+                }
+            };
+
             const t = translations[lang];
 
             const cleanupPeer = () => {
-                if (myPeer) myPeer.destroy();
+                if (myPeer) {
+                    myPeer.destroy();
+                    setMyPeer(null);
+                }
                 connsRef.current.forEach(c => c.close());
                 connsRef.current = [];
             };
+
+            useEffect(() => {
+                const interval = setInterval(() => {
+                    const now = new Date();
+                    const display = document.getElementById('time-display');
+                    if (display) display.innerText = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+                }, 1000);
+                return () => { clearInterval(interval); cleanupPeer(); };
+            }, []);
 
             const hostBroadcast = (data) => {
                 connsRef.current.forEach(c => { if (c.open) c.send(data); });
@@ -405,14 +428,26 @@
             const startHost = () => {
                 if (!username) return alert('Enter nickname!');
                 cleanupPeer();
+                setNetStatus('CONNECTING...');
                 const randomPin = Math.floor(100000 + Math.random() * 899999).toString();
-                const p = new Peer(`math-${randomPin}`);
+                const p = new Peer(`math-${randomPin}`, peerConfig);
+
                 p.on('open', id => {
+                    console.log('Host opened with ID:', id);
                     setPin(id.replace('math-', '')); setMyPeer(p); setIsHost(true);
+                    setNetStatus('ONLINE');
                     const initPlayers = [{ id: 'me', name: username, score: 0 }];
                     gameRef.current.players = initPlayers; setPlayers(initPlayers);
                     setView('waiting');
                 });
+
+                p.on('error', err => {
+                    console.error('Peer Error:', err);
+                    setNetStatus('ERROR');
+                    alert('Connection Error: ' + err.type + '\n' + (err.message || 'Please try again.'));
+                    if (err.type === 'id-taken') startHost(); // Retry with new ID
+                });
+
                 p.on('connection', c => {
                     c.on('data', d => {
                         const g = gameRef.current;
@@ -441,14 +476,27 @@
             const joinRoom = () => {
                 if (!username || !roomCode) return alert('Name & PIN needed!');
                 cleanupPeer();
-                const p = new Peer(); setMyPeer(p);
+                setNetStatus('CONNECTING...');
+                const p = new Peer(peerConfig); setMyPeer(p);
                 p.on('open', () => {
-                    const c = p.connect(`math-${roomCode}`); hostConnRef.current = c;
+                    setNetStatus('JOINING...');
+                    const c = p.connect(`math-${roomCode}`, { reliable: true }); hostConnRef.current = c;
                     c.on('open', () => {
+                        setNetStatus('CONNECTED');
                         c.send({ type: 'join', name: username });
                         setView('waiting');
                     });
                     c.on('data', d => updateInternal(d));
+                    c.on('error', err => {
+                        console.error('Connection Error:', err);
+                        alert('Could not join room. Is the PIN correct?');
+                        setNetStatus('ERROR');
+                    });
+                });
+                p.on('error', err => {
+                    console.error('Peer Error:', err);
+                    alert('Peer Error: ' + err.type);
+                    setNetStatus('ERROR');
                 });
             };
 
@@ -485,7 +533,7 @@
                     g.r++; hostBroadcast({ type: 'aupd', r: g.r, t: g.players.length });
                     if (g.r === g.players.length) { clearTimeout(g.tId); showLeaderboard(); }
                 } else {
-                    hostConnRef.current.send({ type: 'ans', v });
+                    if (hostConnRef.current && hostConnRef.current.open) hostConnRef.current.send({ type: 'ans', v });
                 }
             };
 
@@ -498,6 +546,7 @@
                             <div className="dot dot-green"></div>
                         </div>
                         <div className="flex-1 text-center text-xs font-semibold opacity-60">{title || "MathMaster"}</div>
+                        <div className="text-[10px] opacity-40 font-bold">{netStatus}</div>
                     </div>
                     <div className={`window-content ${dark ? 'bg-[#46178f]' : ''}`}>
                         {children}
@@ -542,7 +591,7 @@
                             <div className="flex-1 flex flex-col items-center justify-center p-10 bg-[#46178f] text-white">
                                 <div className="text-4xl font-black mb-8">Almost there!</div>
                                 <input className="mobile-join-input text-black" placeholder="Nickname" value={username} onChange={e => setUsername(e.target.value)} />
-                                <button onClick={joinRoom} className="mobile-join-btn w-full !bg-green-600">OK, go!</button>
+                                <button onClick={() => { if (roomCode) joinRoom(); else setView('landing'); }} className="mobile-join-btn w-full !bg-green-600">OK, go!</button>
                             </div>
                         </MacWindow>
                     )}
