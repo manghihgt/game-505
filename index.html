@@ -14,262 +14,254 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <link
-        href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;800&family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Space+Grotesk:wght@300;700&display=swap"
         rel="stylesheet">
     <style>
         :root {
-            --primary: #6366f1;
-            --primary-glow: rgba(99, 102, 241, 0.4);
-            --secondary: #a855f7;
-            --accent: #22d3ee;
-            --bg: #030712;
-            --card-bg: rgba(255, 255, 255, 0.03);
-            --card-border: rgba(255, 255, 255, 0.08);
-            --kahoot-red: #ff3355;
-            --kahoot-blue: #45a3ff;
-            --kahoot-yellow: #ffc233;
-            --kahoot-green: #66bf3c;
+            --neon-blue: #00f3ff;
+            --neon-pink: #ff00ff;
+            --neon-green: #00ff9f;
+            --cyber-black: #050505;
+            --cyber-dark: #0a0a0f;
+            --cyber-gray: #1a1a24;
+            --glow: 0 0 15px var(--neon-blue);
         }
 
         body {
-            font-family: 'Inter', 'Kanit', sans-serif;
-            background: var(--bg);
-            color: #f8fafc;
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--cyber-black);
+            color: #fff;
             min-height: 100vh;
             margin: 0;
             overflow-x: hidden;
-            touch-action: manipulation;
-            letter-spacing: -0.01em;
-        }
-
-        .font-brand {
-            font-family: 'Space Grotesk', sans-serif;
-            letter-spacing: -0.03em;
-        }
-
-        /* Dynamic Background */
-        .bg-mesh {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background-color: var(--bg);
             background-image:
-                radial-gradient(at 0% 0%, hsla(253, 16%, 7%, 1) 0, transparent 50%),
-                radial-gradient(at 50% 0%, hsla(225, 39%, 30%, 0.2) 0, transparent 50%),
-                radial-gradient(at 100% 0%, hsla(339, 49%, 30%, 0.2) 0, transparent 50%);
+                radial-gradient(circle at 50% 50%, #111 0%, transparent 80%),
+                linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
         }
 
-        .math-symbol {
-            position: absolute;
-            font-size: 1.2rem;
-            opacity: 0.15;
-            color: var(--primary);
-            pointer-events: none;
-            filter: blur(1px);
-        }
-
-        /* Glassmorphism Evolved */
-        .glass-nav {
-            background: rgba(3, 7, 18, 0.6);
-            backdrop-filter: blur(20px) saturate(180%);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        /* Scanline Overlay */
+        body::after {
+            content: "";
             position: fixed;
             top: 0;
             left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 3px, 3px 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .font-cyber {
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        /* Hardcore Glass */
+        .cyber-nav {
+            background: rgba(5, 5, 8, 0.9);
+            border-bottom: 2px solid var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+            position: fixed;
+            top: 0;
             width: 100%;
-            z-index: 100;
-            height: 72px;
+            height: 70px;
+            z-index: 1000;
             display: flex;
             align-items: center;
+            justify-content: center;
         }
 
-        .cyber-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--card-border);
-            border-radius: 28px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            transition: border-color 0.3s ease;
-        }
-
-        .cyber-card:hover {
-            border-color: rgba(255, 255, 255, 0.15);
-        }
-
-        .btn-glow {
+        .hardcore-card {
+            background: rgba(10, 10, 15, 0.85);
+            border: 1px solid rgba(0, 243, 255, 0.3);
             position: relative;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 18px;
-            color: white;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 0 0 rgba(99, 102, 241, 0);
+            padding: 2rem;
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%);
         }
 
-        .btn-glow:hover {
-            transform: translateY(-4px) scale(1.02);
-            box-shadow: 0 15px 30px var(--primary-glow);
-        }
-
-        /* Premium Inputs */
-        .cyber-input {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-            border-radius: 18px;
-            padding: 1.25rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            outline: none;
-        }
-
-        .cyber-input:focus {
-            background: rgba(255, 255, 255, 0.07);
-            border-color: var(--primary);
-            box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
-        }
-
-        /* Kahoot Cards 2.0 */
-        .kh-btn {
-            height: clamp(80px, 12vh, 120px);
-            font-weight: 800;
-            border-radius: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            padding: 0 24px;
-            gap: 20px;
-            font-size: clamp(1.2rem, 4vw, 2.2rem);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .kh-btn::after {
+        /* Corner Accents */
+        .hardcore-card::before,
+        .hardcore-card::after {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(rgba(255, 255, 255, 0.1), transparent);
-            pointer-events: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--neon-blue);
         }
 
-        .kh-btn:active:not(:disabled) {
-            transform: scale(0.96);
+        .hardcore-card::before {
+            top: -2px;
+            left: -2px;
+            border-right: 0;
+            border-bottom: 0;
+        }
+
+        .hardcore-card::after {
+            bottom: -2px;
+            right: -2px;
+            border-left: 0;
+            border-top: 0;
+        }
+
+        .btn-neon {
+            background: transparent;
+            border: 2px solid var(--neon-blue);
+            color: var(--neon-blue);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 1rem 2rem;
+            position: relative;
+            transition: all 0.3s;
+            overflow: hidden;
+            box-shadow: inset 0 0 10px rgba(0, 243, 255, 0.2);
+        }
+
+        .btn-neon:hover {
+            background: var(--neon-blue);
+            color: black;
+            box-shadow: 0 0 30px var(--neon-blue);
+        }
+
+        .btn-neon-pink {
+            border-color: var(--neon-pink);
+            color: var(--neon-pink);
+        }
+
+        .btn-neon-pink:hover {
+            background: var(--neon-pink);
+            box-shadow: 0 0 30px var(--neon-pink);
+        }
+
+        /* Glitch Animation */
+        @keyframes glitch {
+            0% {
+                transform: translate(0);
+                text-shadow: -2px 0 var(--neon-pink), 2px 0 var(--neon-blue);
+            }
+
+            20% {
+                transform: translate(-2px, 1px);
+            }
+
+            40% {
+                transform: translate(-2px, -1px);
+            }
+
+            60% {
+                transform: translate(2px, 1px);
+            }
+
+            80% {
+                transform: translate(2px, -1px);
+            }
+
+            100% {
+                transform: translate(0);
+                text-shadow: -2px 0 var(--neon-pink), 2px 0 var(--neon-blue);
+            }
+        }
+
+        .glitch-text:hover {
+            animation: glitch 0.3s infinite;
+        }
+
+        .cyber-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            font-family: 'Orbitron', sans-serif;
+            text-align: center;
+            padding: 1.5rem;
+            width: 100%;
+            outline: none;
+            font-size: 1.5rem;
+        }
+
+        /* Kahoot Hardcore */
+        .kh-btn {
+            height: clamp(80px, 10vh, 120px);
+            border-radius: 0;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            font-weight: 900;
+            font-size: 2rem;
+            clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%);
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 0 30px;
+        }
+
+        .kh-btn:hover:not(:disabled) {
+            transform: scale(1.02);
+            border-color: #fff;
+            filter: brightness(1.2) drop-shadow(0 0 20px currentColor);
         }
 
         .kh-red {
-            background: linear-gradient(135deg, #ff4b2b, #ff416c);
+            background: #ff003c;
+            color: #fff;
         }
 
         .kh-blue {
-            background: linear-gradient(135deg, #2193b0, #6dd5ed);
+            background: #008cff;
+            color: #fff;
         }
 
         .kh-yellow {
-            background: linear-gradient(135deg, #f7971e, #ffd200);
+            background: #ffcc00;
+            color: #000;
         }
 
         .kh-green {
-            background: linear-gradient(135deg, #11998e, #38ef7d);
+            background: #00ff6a;
+            color: #000;
         }
 
-        .hologram-board {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 32px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.6), 0 0 40px rgba(99, 102, 241, 0.1);
+        .arena-hologram {
+            background: rgba(0, 243, 255, 0.03);
+            border: 1px solid var(--neon-blue);
+            padding: 3rem;
             position: relative;
-            overflow: hidden;
         }
 
-        .hologram-board::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 30px 30px;
-            pointer-events: none;
-        }
-
-        .circle-stat {
-            width: clamp(70px, 18vw, 110px);
-            height: clamp(70px, 18vw, 110px);
-            border-radius: 50%;
+        .stat-hex {
+            width: 100px;
+            height: 110px;
+            background: rgba(0, 243, 255, 0.1);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: rgba(0, 0, 0, 0.5);
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--neon-blue);
             font-weight: 900;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            font-size: 2.5rem;
         }
 
-        /* Animations */
-        @keyframes float {
-
-            0%,
-            100% {
-                transform: translateY(0);
-            }
-
-            50% {
-                transform: translateY(-15px);
-            }
+        /* Custom Scroll */
+        ::-webkit-scrollbar {
+            width: 4px;
+            background: #000;
         }
 
-        .animate-float {
-            animation: float 6s ease-in-out infinite;
+        ::-webkit-scrollbar-thumb {
+            background: var(--neon-blue);
         }
 
-        .hero-title {
-            background: linear-gradient(to bottom right, #fff 30%, rgba(255, 255, 255, 0.4));
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 900;
-            line-height: 0.9;
-        }
-
-        /* Responsive Fixes */
         @media (max-width: 768px) {
-            .mobile-hide {
-                display: none;
-            }
-
             .kh-btn {
-                padding: 0 16px;
-                gap: 12px;
+                font-size: 1.5rem;
+                padding: 0 15px;
             }
 
             .grid-mobile-1 {
                 grid-template-columns: 1fr;
             }
-
-            .playing-container {
-                padding-top: 80px;
-            }
-        }
-
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
         }
     </style>
 </head>
@@ -357,6 +349,9 @@
 
             const [netStatus, setNetStatus] = useState('OFFLINE');
             const peerConfig = {
+                host: '0.peerjs.com',
+                port: 443,
+                secure: true,
                 config: {
                     'iceServers': [
                         { 'urls': 'stun:stun.l.google.com:19302' },
@@ -529,8 +524,16 @@
             };
 
             return (
-                <div className="min-h-screen flex flex-col">
-                    <nav className="glass-nav px-6">
+                <div className="min-h-screen flex flex-col relative overflow-hidden">
+                    <div className="bg-mesh"></div>
+                    {/* Decorative Elements */}
+                    <div className="fixed top-0 left-0 w-full h-full pointer-events-none opacity-20 z-[-1]">
+                        <div className="absolute top-[10%] left-[5%] w-32 h-32 border border-indigo-500/30 rotate-12 animate-pulse"></div>
+                        <div className="absolute bottom-[20%] right-[10%] w-48 h-48 border border-rose-500/20 -rotate-12"></div>
+                        <div className="absolute top-[40%] right-[5%] w-24 h-24 border-l-4 border-t-4 border-indigo-500/40"></div>
+                        <div className="absolute bottom-[30%] left-[8%] w-24 h-24 border-r-4 border-b-4 border-rose-500/40"></div>
+                    </div>
+                    <nav className="cyber-nav px-6">
                         <div className="max-w-7xl mx-auto w-full flex justify-between items-center">
                             <div className="flex items-center gap-3 cursor-pointer" onClick={() => setView('landing')}>
                                 <div className="w-9 h-9 bg-indigo-600 rounded-lg flex items-center justify-center font-black">M</div>
@@ -603,46 +606,50 @@
                         )}
 
                         {view === 'playing' && (
-                            <div className="flex-1 flex flex-col p-6 max-w-7xl mx-auto w-full playing-container view-container mt-[70px]">
-                                <div className="flex justify-between items-center mb-10">
+                            <div className="flex-1 flex flex-col p-6 max-w-7xl mx-auto w-full playing-container view-container mt-[50px]">
+                                <div className="flex justify-between items-end mb-12 border-b-2 border-white/5 pb-6">
                                     <div className="flex flex-col">
-                                        <h3 className="text-[10px] font-black opacity-30 tracking-[0.6em] uppercase mb-1">{t.question}</h3>
-                                        <div className="text-4xl md:text-5xl font-brand font-black italic tracking-tighter uppercase">{currentQ.n} <span className="text-indigo-500 opacity-40">/ 10</span></div>
+                                        <h3 className="text-[10px] font-black text-indigo-400 tracking-[1em] uppercase mb-2">TARGET_NEURAL_SEQ</h3>
+                                        <div className="text-5xl md:text-7xl font-cyber font-black italic tracking-tighter uppercase leading-none">{currentQ.n}<span className="text-white/10">.0</span></div>
                                     </div>
                                     <div className="flex gap-4">
-                                        {isHost && <button onClick={showLeaderboard} className="bg-white/5 border border-white/10 px-6 py-2 rounded-xl text-[10px] font-black hover:bg-white/10 transition-all uppercase tracking-widest">{t.skip}</button>}
-                                        <div className="bg-indigo-500/10 border border-indigo-500/30 px-5 py-2 rounded-xl text-[10px] font-black text-indigo-400 tracking-[0.2em] mobile-hide uppercase">NETWORK: STABLE</div>
+                                        {isHost && <button onClick={showLeaderboard} className="btn-neon py-2 px-6 text-[10px]">SYNC_SKIP</button>}
+                                        <div className="border border-white/10 px-5 py-2 text-[10px] font-black text-white/40 tracking-[0.4em] mobile-hide uppercase">ENCRYPTION: ACTIVE</div>
                                     </div>
                                 </div>
 
-                                <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center mb-10">
+                                <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center mb-16">
                                     <div className="lg:col-span-2 flex flex-col items-center justify-center order-2 lg:order-1">
-                                        <div className="circle-stat border-indigo-500 text-4xl md:text-5xl mb-3">
-                                            <span className={timer < 6 ? 'text-rose-500 animate-pulse' : 'text-white'}>{timer}</span>
+                                        <div className={`stat-hex border-2 ${timer < 6 ? 'border-rose-500 text-rose-500 shadow-[0_0_30px_rgba(244,63,94,0.4)]' : 'border-indigo-500 text-indigo-400'}`}>
+                                            {timer}
                                         </div>
-                                        <div className="text-[9px] font-black opacity-30 tracking-[0.3em] uppercase">Time left</div>
+                                        <div className="text-[10px] font-black opacity-30 tracking-[0.4em] uppercase mt-6">SEC_REMAIN</div>
                                     </div>
 
-                                    <div className="lg:col-span-8 hologram-board min-h-[35vh] flex flex-col items-center justify-center text-center p-12 order-1 lg:order-2">
-                                        <div className="text-[10px] font-black text-indigo-400 mb-6 tracking-[0.5em] uppercase">{currentQ.qType}</div>
-                                        <div className="bg-white text-black px-12 py-8 md:py-14 rounded-[40px] font-brand font-black text-4xl md:text-7xl shadow-[0_30px_60px_rgba(0,0,0,0.5)] mb-10 select-none transform hover:scale-105 transition-transform duration-500">
+                                    <div className="lg:col-span-8 arena-hologram min-h-[40vh] flex flex-col items-center justify-center text-center order-1 lg:order-2">
+                                        <div className="text-[11px] font-cyber font-black text-indigo-400 mb-8 tracking-[1em] uppercase animate-pulse">
+                                            {">>>"} {currentQ.qType} {"<<<"}
+                                        </div>
+                                        <div className="bg-white text-black px-14 py-10 md:py-20 rounded-0 font-cyber font-black text-5xl md:text-8xl shadow-[0_40px_100px_rgba(0,0,0,0.8)] mb-12 select-none border-r-[15px] border-indigo-500">
                                             {currentQ.q}
                                         </div>
-                                        <div className="bg-white/[0.05] border border-white/[0.08] px-8 py-3 rounded-full font-mono text-indigo-300 text-sm md:text-base tracking-widest uppercase">
+                                        <div className="text-white/20 font-mono text-xl md:text-2xl tracking-[1em] uppercase flex items-center gap-6">
+                                            <div className="h-[1px] w-20 bg-white/10"></div>
                                             {currentQ.formula}
+                                            <div className="h-[1px] w-20 bg-white/10"></div>
                                         </div>
                                     </div>
 
                                     <div className="lg:col-span-2 flex flex-col items-center justify-center order-3">
-                                        <div className="circle-stat border-emerald-500 text-4xl md:text-5xl mb-3">{answersCount.r}</div>
-                                        <div className="text-[9px] font-black opacity-30 tracking-[0.3em] uppercase">{t.answered}</div>
+                                        <div className="stat-hex border-2 border-emerald-500 text-emerald-400">{answersCount.r}</div>
+                                        <div className="text-[10px] font-black opacity-30 tracking-[0.4em] uppercase mt-6">RESP_RCVD</div>
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:h-[30vh]">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:h-[35vh]">
                                     {['kh-red', 'kh-blue', 'kh-yellow', 'kh-green'].map((c, i) => (
-                                        <button key={i} onClick={() => submit(currentQ.opts[i])} disabled={hasAnswered} className={`kh-btn ${c} ${hasAnswered ? 'opacity-20 scale-95 pointer-events-none' : 'hover:-translate-y-1 shadow-2xl'}`}>
-                                            <Shape type={['tri', 'dia', 'cir', 'squ'][i]} />
+                                        <button key={i} onClick={() => submit(currentQ.opts[i])} disabled={hasAnswered} className={`kh-btn ${c} ${hasAnswered ? 'opacity-10 scale-95 grayscale' : ''}`}>
+                                            <span className="font-cyber opacity-40">{['01', '02', '03', '04'][i]}</span>
                                             <span className="truncate">{currentQ.opts[i]}</span>
                                         </button>
                                     ))}
@@ -652,50 +659,50 @@
 
                         {view === 'leaderboard' && (
                             <div className="flex-1 flex flex-col items-center justify-center p-6 view-container">
-                                <h2 className="text-5xl md:text-8xl font-brand font-black italic mb-16 uppercase tracking-tighter text-indigo-400 hero-title">{t.scoreboard}</h2>
-                                <div className="max-w-xl w-full space-y-4">
+                                <h2 className="glitch-text text-5xl md:text-[9rem] font-cyber font-black italic mb-20 uppercase tracking-tighter text-white leading-none">RANKING<br /><span className="text-indigo-500">STATS</span></h2>
+                                <div className="max-w-2xl w-full space-y-6">
                                     {players.sort((a, b) => b.score - a.score).map((p, i) => (
-                                        <div key={i} className={`p-8 cyber-card flex justify-between items-center ${i === 0 ? 'bg-indigo-500/10 border-indigo-500 shadow-2xl shadow-indigo-500/20' : 'bg-white/[0.02]'}`}>
-                                            <div className="flex items-center gap-8">
-                                                <span className={`text-4xl font-brand font-black ${i === 0 ? 'text-indigo-400' : 'opacity-10'}`}>#{i + 1}</span>
-                                                <span className="text-xl md:text-2xl font-black uppercase tracking-tight truncate max-w-[150px] sm:max-w-none">{p.name} {p.id === 'me' && '👑'}</span>
+                                        <div key={i} className={`p-10 hardcore-card flex justify-between items-center ${i === 0 ? 'border-indigo-500 border-2 bg-indigo-500/10' : 'bg-white/[0.01]'}`}>
+                                            <div className="flex items-center gap-10">
+                                                <span className={`text-5xl font-cyber font-black ${i === 0 ? 'text-indigo-400' : 'opacity-10'}`}>{i + 1}</span>
+                                                <span className="text-2xl md:text-3xl font-cyber font-black uppercase tracking-tight truncate max-w-[200px] s:max-w-none">{p.name} {p.id === 'me' && '[⚡]'}</span>
                                             </div>
                                             <div className="flex flex-col items-end">
-                                                <div className="text-3xl md:text-4xl font-brand font-black text-white">{p.score}</div>
-                                                <div className="text-[8px] font-black opacity-30 tracking-[0.2em] uppercase">Total Points</div>
+                                                <div className="text-5xl mb-2 font-cyber font-black text-white">{p.score}</div>
+                                                <div className="text-[10px] font-black opacity-30 tracking-[0.5em] uppercase">PTS_EARNED</div>
                                             </div>
                                         </div>
                                     ))}
-                                    <div className="text-center pt-10 text-indigo-400 font-black animate-pulse tracking-[0.5em] uppercase text-xs">{t.nextSub}</div>
+                                    <div className="text-center pt-16 text-indigo-500 font-black animate-pulse tracking-[1em] uppercase text-sm">UPDATING_NODE_DATA...</div>
                                 </div>
                             </div>
                         )}
 
                         {view === 'gameover' && (
                             <div className="flex-1 flex flex-col items-center justify-center p-6 text-center view-container">
-                                <h2 className="hero-title text-6xl md:text-9xl font-brand font-black italic uppercase tracking-tighter mb-20">{t.champion}</h2>
-                                <div className="flex justify-center items-end gap-3 md:gap-8 mb-24 px-4 w-full max-w-3xl">
+                                <h1 className="glitch-text text-7xl md:text-[12rem] font-cyber font-black italic uppercase tracking-tighter mb-24 leading-none truncate w-full">CHAMPION</h1>
+                                <div className="flex justify-center items-end gap-3 md:gap-12 mb-32 px-4 w-full max-w-5xl">
                                     {winners[1] && (
-                                        <div className="flex-1 cyber-card p-10 rounded-t-[40px] border-t-8 border-slate-400 flex flex-col items-center max-w-[180px] bg-slate-400/5 h-[35vh] justify-center">
-                                            <div className="text-5xl mb-6 grayscale">🥈</div>
-                                            <div className="font-black truncate w-full uppercase text-sm tracking-tight">{winners[1].name}</div>
+                                        <div className="flex-1 hardcore-card p-10 border-slate-400 flex flex-col items-center max-w-[220px] bg-slate-400/5 h-[40vh] justify-center scale-90 opacity-60">
+                                            <div className="text-6xl mb-10 grayscale">02</div>
+                                            <div className="font-cyber font-black truncate w-full uppercase text-lg tracking-tight">{winners[1].name}</div>
                                         </div>
                                     )}
                                     {winners[0] && (
-                                        <div className="flex-1 cyber-card p-14 rounded-t-[40px] border-t-[12px] border-indigo-500 relative -top-12 shadow-[0_40px_100px_rgba(99,102,241,0.3)] flex flex-col items-center max-w-[240px] bg-indigo-500/10 h-[45vh] justify-center">
-                                            <div className="text-8xl mb-8 animate-float">🥇</div>
-                                            <div className="text-2xl font-black truncate w-full uppercase tracking-tighter text-indigo-400">{winners[0].name}</div>
-                                            <div className="text-[10px] font-black opacity-30 mt-2 uppercase tracking-widest">Grand Champion</div>
+                                        <div className="flex-1 hardcore-card p-16 border-indigo-500 border-2 relative -top-16 shadow-[0_50px_150px_rgba(99,102,241,0.4)] flex flex-col items-center max-w-[300px] bg-indigo-500/20 h-[55vh] justify-center">
+                                            <div className="text-[10rem] mb-12 animate-pulse leading-none text-white select-none">01</div>
+                                            <div className="text-4xl font-cyber font-black truncate w-full uppercase tracking-tighter text-white">{winners[0].name}</div>
+                                            <div className="text-xs font-black text-indigo-400 mt-6 uppercase tracking-[1em]">ARENA_GOD</div>
                                         </div>
                                     )}
                                     {winners[2] && (
-                                        <div className="flex-1 cyber-card p-10 rounded-t-[40px] border-t-8 border-amber-700 flex flex-col items-center max-w-[180px] bg-amber-700/5 h-[30vh] justify-center">
-                                            <div className="text-5xl mb-6 brightness-50">🥉</div>
-                                            <div className="font-black truncate w-full uppercase text-sm tracking-tight">{winners[2].name}</div>
+                                        <div className="flex-1 hardcore-card p-10 border-amber-800 flex flex-col items-center max-w-[220px] bg-amber-800/5 h-[35vh] justify-center scale-75 opacity-40">
+                                            <div className="text-6xl mb-10 opacity-50">03</div>
+                                            <div className="font-cyber font-black truncate w-full uppercase text-lg tracking-tight">{winners[2].name}</div>
                                         </div>
                                     )}
                                 </div>
-                                <button onClick={() => window.location.reload()} className="btn-glow px-16 py-6 rounded-[24px] text-2xl shadow-2xl tracking-[0.2em]">{t.back}</button>
+                                <button onClick={() => window.location.reload()} className="btn-neon px-24 py-10 text-3xl mb-20">RESET_LINK</button>
                             </div>
                         )}
                     </div>
