@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MATH MASTER | Advanced P2P Edition</title>
-    <!-- Dependencies from CDN -->
+    <title>MATH MASTER | Kahoot Edition</title>
+    <!-- Dependencies -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -22,6 +22,10 @@
             --secondary: #a855f7;
             --accent: #22d3ee;
             --bg: #0f172a;
+            --kahoot-red: #e21b3c;
+            --kahoot-blue: #1368ce;
+            --kahoot-yellow: #d89e00;
+            --kahoot-green: #26890c;
         }
 
         body {
@@ -37,7 +41,6 @@
             font-family: 'Space Grotesk', sans-serif;
         }
 
-        /* Advanced Background */
         .bg-mesh {
             position: fixed;
             top: 0;
@@ -45,9 +48,8 @@
             width: 100%;
             height: 100%;
             z-index: -1;
-            background: radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 100% 100%, rgba(168, 85, 247, 0.15) 0%, transparent 50%);
-            overflow: hidden;
+            background: radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(168, 85, 247, 0.1) 0%, transparent 50%);
         }
 
         .math-symbol {
@@ -56,14 +58,11 @@
             opacity: 0.1;
             color: var(--accent);
             pointer-events: none;
-            user-select: none;
         }
 
-        /* Glassmorphism Navbar */
         .glass-nav {
             background: rgba(15, 23, 42, 0.6);
-            backdrop-filter: blur(15px) saturate(180%);
-            -webkit-backdrop-filter: blur(15px) saturate(180%);
+            backdrop-filter: blur(15px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             position: fixed;
             top: 0;
@@ -76,32 +75,12 @@
             position: relative;
             padding: 8px 16px;
             font-weight: 500;
-            transition: all 0.3s ease;
             cursor: pointer;
             opacity: 0.7;
+            transition: 0.3s;
         }
 
-        .nav-link:hover {
-            opacity: 1;
-        }
-
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            width: 0;
-            height: 2px;
-            background: var(--accent);
-            transition: all 0.3s ease;
-            transform: translateX(-50%);
-        }
-
-        .nav-link:hover::after,
-        .nav-link.active::after {
-            width: 60%;
-        }
-
+        .nav-link:hover,
         .nav-link.active {
             opacity: 1;
             color: var(--accent);
@@ -112,16 +91,12 @@
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 32px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
         }
 
         .btn-premium {
             background: linear-gradient(135deg, var(--primary), var(--secondary));
             border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 4px 20px rgba(99, 102, 241, 0.3);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-            overflow: hidden;
+            transition: 0.4s;
         }
 
         .btn-premium:hover {
@@ -129,22 +104,73 @@
             box-shadow: 0 10px 30px rgba(99, 102, 241, 0.5);
         }
 
-        .btn-premium:active {
-            transform: translateY(0) scale(0.98);
+        /* CIRCULAR COUNTERS */
+        .circle-counter {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.5);
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            font-weight: 800;
+            font-family: 'Space Grotesk', sans-serif;
         }
 
-        .option-btn {
-            height: 90px;
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 1.5rem;
-            font-weight: 700;
-            border-radius: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        /* KAHOOT BUTTONS */
+        .kh-btn {
+            height: 120px;
+            font-weight: 800;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 0 30px;
+            gap: 20px;
+            font-size: 1.8rem;
+            border-bottom: 8px solid rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+        }
+
+        .kh-btn:hover:not(:disabled) {
+            transform: translateY(-5px);
+            brightness: 1.1;
+        }
+
+        .kh-btn:active:not(:disabled) {
+            transform: translateY(2px);
+            border-bottom-width: 2px;
+        }
+
+        .kh-red {
+            background: var(--kahoot-red);
+        }
+
+        .kh-blue {
+            background: var(--kahoot-blue);
+        }
+
+        .kh-yellow {
+            background: var(--kahoot-yellow);
+        }
+
+        .kh-green {
+            background: var(--kahoot-green);
+        }
+
+        .chalkboard {
+            background: #1a3a2a;
+            border: 12px solid #5d4037;
+            border-radius: 8px;
+            box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.5);
+            position: relative;
+            background-image: url('https://www.transparenttextures.com/patterns/chalkboard.png');
         }
 
         .fade-in {
-            animation: fadeIn 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+            animation: fadeIn 0.8s ease-out forwards;
         }
 
         @keyframes fadeIn {
@@ -159,29 +185,17 @@
             }
         }
 
-        .formula-box {
-            background: rgba(99, 102, 241, 0.1);
-            border-left: 4px solid var(--primary);
-            padding: 10px 20px;
-            border-radius: 0 10px 10px 0;
-            font-family: 'Space Grotesk', sans-serif;
-            font-style: italic;
-            font-size: 0.9rem;
-            margin-bottom: 20px;
-            display: inline-block;
-        }
-
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
+        .skip-btn {
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            transition: 0.3s;
+        }
+
+        .skip-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
     </style>
 </head>
@@ -193,18 +207,15 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // --- DATA & TRANSLATIONS ---
         const translations = {
             TH: {
                 navHome: "หน้าหลัก", navAbout: "เกี่ยวกับพวกเรา", navMusic: "เปิดเพลง", title: "MATH MASTER", subtitle: "ระบบสูตรเลขลำดับและเรขาคณิต P2P",
                 start: "เริ่มต้นความมันส์", language: "ภาษา TH", nickname: "ระบุชื่อเล่นของคุณ", hostBtn: "เปิดห้องใหม่",
-                joinBtn: "เข้าร่วมเล่น", roomID: "รหัส PIN (4 หลัก)", waiting: "กำลังรอทุกคน...", startHost: "ปล่อยตัว!",
-                copy: "คัดลอกรหัส", players: "นักสู้เลข", question: "โจทย์ที่", answered: "ส่งคำตอบแล้ว",
+                joinBtn: "เข้าร่วมเล่น", roomID: "รหัส PIN", waiting: "กำลังรอทุกคน...", startHost: "ปล่อยตัว!",
+                copy: "คัดลอกรหัส", players: "นักสู้เลข", question: "โจทย์ที่", answered: "คนตอบแล้ว",
                 scoreboard: "กระดานเกียรติยศ", nextSub: "สงครามครั้งถัดไปกำลังมา...", champion: "สุดยอดแชมป์เปี้ยน!",
-                back: "กลับบ้าน",
+                back: "กลับบ้าน", skip: "ข้ามโจทย์",
                 arithmetic: "ลำดับเลขคณิต", geometric: "ลำดับเรขาคณิต",
-                formulaArith: "สูตรลำดับเลขคณิต: a_n = a_1 + (n-1)d",
-                formulaGeo: "สูตรลำดับเรขาคณิต: a_n = a_1 * r^(n-1)",
                 team: [
                     { name: "นายกรมิษฐิ์ อินดา", role: "Project Manager" },
                     { name: "นายนพกิจ สุรินทร์ต๊ะ", role: "UI Designer" },
@@ -216,13 +227,11 @@
             EN: {
                 navHome: "Home", navAbout: "About Us", navMusic: "Music", title: "MATH MASTER", subtitle: "Arithmetic & Geometric P2P Arena",
                 start: "Enter Arena", language: "Language EN", nickname: "Enter Nickname", hostBtn: "HOST ARENA",
-                joinBtn: "JOIN ARENA", roomID: "PIN Code (4 digits)", waiting: "Waiting for warriors...", startHost: "Unleash!",
-                copy: "Copy PIN", players: "Mathematical Warriors", question: "Problem", answered: "Answered",
+                joinBtn: "JOIN ARENA", roomID: "PIN Code", waiting: "Waiting for warriors...", startHost: "Unleash!",
+                copy: "Copy PIN", players: "Mathematical Warriors", question: "Problem", answered: "Answers",
                 scoreboard: "HALL OF FAME", nextSub: "The next battle approaches...", champion: "ULTIMATE CHAMPION!",
-                back: "Go Home",
+                back: "Go Home", skip: "Skip",
                 arithmetic: "Arithmetic Sequence", geometric: "Geometric Sequence",
-                formulaArith: "Arithmetic Formula: a_n = a_1 + (n-1)d",
-                formulaGeo: "Geometric Formula: a_n = a_1 * r^(n-1)",
                 team: [
                     { name: "Mr. Konmanit Inda", role: "Project Manager" },
                     { name: "Mr. Noppakit Surinta", role: "UI Designer" },
@@ -236,51 +245,32 @@
         const generateQuestion = (lang) => {
             const isArithmetic = Math.random() > 0.5;
             const tArray = translations[lang];
-
             if (isArithmetic) {
                 const a1 = Math.floor(Math.random() * 20) + 1;
                 const d = Math.floor(Math.random() * 10) + 2;
                 const seq = [a1, a1 + d, a1 + d * 2, a1 + d * 3, a1 + d * 4];
                 const missingIdx = Math.floor(Math.random() * 5);
                 const answer = seq[missingIdx];
-                const displaySeq = [...seq];
-                displaySeq[missingIdx] = '___';
-
+                const displaySeq = [...seq]; displaySeq[missingIdx] = '___';
                 const options = new Set([answer]);
                 while (options.size < 4) {
                     const off = (Math.floor(Math.random() * 10) + 1) * (Math.random() > 0.5 ? 1 : -1);
                     if (answer + off >= 0) options.add(answer + off);
                 }
-                return {
-                    q: `${displaySeq.join(', ')}`,
-                    options: Array.from(options).sort(() => Math.random() - 0.5),
-                    answer,
-                    type: tArray.arithmetic,
-                    formula: tArray.formulaArith
-                };
+                return { q: `${displaySeq.join(', ')}`, options: Array.from(options).sort(() => Math.random() - 0.5), answer, type: tArray.arithmetic, formula: "a_n = a_1 + (n-1)d" };
             } else {
                 const a1 = Math.floor(Math.random() * 5) + 1;
                 const r = Math.floor(Math.random() * 3) + 2;
                 const seq = [a1, a1 * r, a1 * Math.pow(r, 2), a1 * Math.pow(r, 3)];
                 const missingIdx = Math.floor(Math.random() * 4);
                 const answer = seq[missingIdx];
-                const displaySeq = [...seq];
-                displaySeq[missingIdx] = '___';
-
+                const displaySeq = [...seq]; displaySeq[missingIdx] = '___';
                 const options = new Set([answer]);
                 while (options.size < 4) {
                     const off = (Math.floor(Math.random() * 10) + 1) * (Math.random() > 0.5 ? 1 : -1);
-                    const val = answer + off;
-                    if (val > 0 && !options.has(val)) options.add(val);
-                    else options.add(answer + Math.floor(Math.random() * 50) + 1);
+                    if (answer + off > 0) options.add(answer + off);
                 }
-                return {
-                    q: `${displaySeq.join(', ')}`,
-                    options: Array.from(options).sort(() => Math.random() - 0.5),
-                    answer,
-                    type: tArray.geometric,
-                    formula: tArray.formulaGeo
-                };
+                return { q: `${displaySeq.join(', ')}`, options: Array.from(options).sort(() => Math.random() - 0.5), answer, type: tArray.geometric, formula: "a_n = a_1 * r^(n-1)" };
             }
         };
 
@@ -311,35 +301,30 @@
                 const bg = document.getElementById('mesh-bg');
                 const symbols = ['Σ', 'π', '∞', '√', '∫', 'Δ', '+', '×', '÷', '='];
                 for (let i = 0; i < 20; i++) {
-                    const el = document.createElement('div');
-                    el.className = 'math-symbol';
+                    const el = document.createElement('div'); el.className = 'math-symbol';
                     el.innerText = symbols[Math.floor(Math.random() * symbols.length)];
-                    el.style.left = `${Math.random() * 100}%`;
-                    el.style.top = `${Math.random() * 100}%`;
+                    el.style.left = `${Math.random() * 100}%`; el.style.top = `${Math.random() * 100}%`;
                     bg.appendChild(el);
                     gsap.to(el, { y: '+=50', x: '+=30', rotation: Math.random() * 360, duration: 10 + Math.random() * 20, repeat: -1, yoyo: true, ease: "sine.inOut" });
                 }
             }, []);
 
             const startHost = () => {
-                if (!username) return alert('Enter nickname!');
                 const randomPin = Math.floor(1000 + Math.random() * 9000).toString();
                 const p = new Peer(`math-${randomPin}`);
                 p.on('open', id => {
-                    setPin(id.replace('math-', ''));
-                    setMyPeer(p); setConnected(true); setIsHost(true);
-                    const initPlayers = [{ id: 'me', name: username, score: 0 }];
-                    gameRef.current.players = initPlayers; setPlayers(initPlayers); setView('waiting');
+                    setPin(id.replace('math-', '')); setMyPeer(p); setConnected(true); setIsHost(true);
+                    const initP = [{ id: 'me', name: username, score: 0 }];
+                    gameRef.current.players = initP; setPlayers(initP); setView('waiting');
                 });
-                p.on('error', (err) => err.type === 'id-taken' ? startHost() : alert(err.type));
+                p.on('error', err => err.type === 'id-taken' ? startHost() : alert(err.type));
                 p.on('connection', c => {
                     c.on('open', () => {
                         c.on('data', d => {
                             const g = gameRef.current;
                             if (d.type === 'join') {
-                                const p = { id: c.peer, name: d.name, score: 0 };
-                                g.players.push(p); setPlayers([...g.players]);
-                                hostBroadcast({ type: 'plist', p: g.players });
+                                g.players.push({ id: c.peer, name: d.name, score: 0 });
+                                setPlayers([...g.players]); hostBroadcast({ type: 'plist', p: g.players });
                             }
                             if (d.type === 'ans') {
                                 const p = g.players.find(x => x.id === c.peer);
@@ -357,7 +342,6 @@
             };
 
             const joinRoom = () => {
-                if (!username || !roomCode) return alert('Enter nickname and PIN!');
                 const p = new Peer(); setMyPeer(p);
                 p.on('open', () => {
                     const c = p.connect(`math-${roomCode}`); hostConnRef.current = c;
@@ -366,44 +350,36 @@
                 });
             };
 
-            const hostBroadcast = (d) => { connsRef.current.forEach(c => c.send(d)); updateInternal(d); };
+            const hostBroadcast = d => { connsRef.current.forEach(c => c.send(d)); updateInternal(d); };
 
-            const updateInternal = (d) => {
+            const updateInternal = d => {
                 if (d.type === 'plist') setPlayers(d.p);
-                if (d.type === 'nextq') {
-                    setCurrentQ(d); setView('playing'); setHasAnswered(false); setTimer(30);
-                    setAnswersCount({ r: 0, t: d.total_players || players.length });
-                }
+                if (d.type === 'nextq') { setCurrentQ(d); setView('playing'); setHasAnswered(false); setTimer(30); setAnswersCount({ r: 0, t: d.total_players || 1 }); }
                 if (d.type === 'aupd') setAnswersCount({ r: d.r, t: d.t });
                 if (d.type === 'lbd') { setLeaderboard([...d.p]); setView('leaderboard'); }
-                if (d.type === 'gov') { setWinners(d.rank); setView('gameover'); confetti({ particleCount: 200, spread: 80 }); }
+                if (d.type === 'gov') { setWinners(d.rank); setView('gameover'); confetti({ particleCount: 200 }); }
             };
 
             const startGameHost = () => {
-                if (players.length < 2) return alert(t.waiting);
-                const g = gameRef.current;
-                g.questions = Array.from({ length: 15 }, () => generateQuestion(lang)); // Increased to 15 for variety
+                const g = gameRef.current; g.questions = Array.from({ length: 10 }, () => generateQuestion(lang));
                 g.idx = 0; sendNext();
             };
 
             const sendNext = () => {
                 const g = gameRef.current;
-                if (g.idx < 10) { // Keep 10 questions per game
+                if (g.idx < 10) {
                     g.r = 0; g.players.forEach(x => x.ans = false);
                     const qData = g.questions[g.idx];
                     hostBroadcast({ type: 'nextq', q: qData.q, opts: qData.options, n: g.idx + 1, total_players: g.players.length, formula: qData.formula, qType: qData.type });
                     g.idx++; g.tId = setTimeout(showLeaderboard, 30500);
-                } else {
-                    hostBroadcast({ type: 'gov', rank: [...g.players].sort((a, b) => b.score - a.score).slice(0, 5) });
-                }
+                } else { hostBroadcast({ type: 'gov', rank: [...g.players].sort((a, b) => b.score - a.score).slice(0, 5) }); }
             };
 
-            const showLeaderboard = () => {
-                hostBroadcast({ type: 'lbd', p: [...gameRef.current.players].sort((a, b) => b.score - a.score) });
-                setTimeout(sendNext, 5000);
-            };
+            const showLeaderboard = () => { hostBroadcast({ type: 'lbd', p: [...gameRef.current.players].sort((a, b) => b.score - a.score) }); setTimeout(sendNext, 5000); };
 
-            const submit = (v) => {
+            const skipQ = () => { clearTimeout(gameRef.current.tId); showLeaderboard(); };
+
+            const submit = v => {
                 setHasAnswered(true);
                 if (isHost) {
                     const g = gameRef.current; const p = g.players.find(x => x.id === 'me');
@@ -424,41 +400,41 @@
                 }
             }, [view, timer]);
 
-            useEffect(() => { localStorage.setItem('math_name', username); }, [username]);
-
-            const Navbar = () => (
-                <nav className="glass-nav">
-                    <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-                        <div className="flex items-center gap-2 cursor-pointer" onClick={() => setView('landing')}>
-                            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center font-black text-xl">M</div>
-                            <span className="text-xl font-brand font-bold uppercase">MATH<span className="text-indigo-400">MASTER</span></span>
-                        </div>
-                        <div className="hidden md:flex gap-8">
-                            <span className={`nav-link ${view === 'landing' || view === 'home' ? 'active' : ''}`} onClick={() => setView('landing')}>{t.navHome}</span>
-                            <span className={`nav-link ${view === 'about' ? 'active' : ''}`} onClick={() => setView('about')}>{t.navAbout}</span>
-                            <a href="https://www.youtube.com/watch?v=Nbc7scngySc&list=RDNbc7scngySc&start_radio=1" target="_blank" className="nav-link text-rose-400 flex items-center gap-2">🎵 {t.navMusic}</a>
-                        </div>
-                        <div className="flex gap-4">
-                            <button onClick={() => setLang(l => l === 'TH' ? 'EN' : 'TH')} className="bg-white/5 border border-white/10 px-4 py-2 rounded-full text-xs font-bold">{t.language}</button>
-                            <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/5">
-                                <div className={`w-2 h-2 rounded-full ${connected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
-                                <span className="text-[10px] font-bold opacity-60">P2P</span>
-                            </div>
-                        </div>
-                    </div>
-                </nav>
-            );
+            const Shape = ({ type }) => {
+                if (type === 'tri') return <svg className="w-12 h-12 fill-white" viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2z" /></svg>;
+                if (type === 'dia') return <svg className="w-12 h-12 fill-white" viewBox="0 0 24 24"><path d="M12 2l10 10-10 10-10-10z" /></svg>;
+                if (type === 'cir') return <svg className="w-12 h-12 fill-white" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /></svg>;
+                if (type === 'squ') return <svg className="w-12 h-12 fill-white" viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" /></svg>;
+                return null;
+            };
 
             return (
-                <div className="relative pt-24 pb-12 min-h-screen">
-                    <Navbar />
+                <div className="relative pt-20 pb-12 min-h-screen">
+                    {/* NAVBAR */}
+                    <nav className="glass-nav">
+                        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+                            <div className="flex items-center gap-2 cursor-pointer" onClick={() => setView('landing')}>
+                                <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center font-black text-xl">M</div>
+                                <span className="text-xl font-brand font-bold">MATH<span className="text-indigo-400">MASTER</span></span>
+                            </div>
+                            <div className="flex gap-4">
+                                <a href="https://www.youtube.com/watch?v=Nbc7scngySc&list=RDNbc7scngySc&start_radio=1" target="_blank" className="nav-link text-rose-400">🎵 {t.navMusic}</a>
+                                <button onClick={() => setLang(l => l === 'TH' ? 'EN' : 'TH')} className="bg-white/5 border border-white/10 px-4 py-2 rounded-full text-xs font-bold">{t.language}</button>
+                            </div>
+                        </div>
+                    </nav>
+
                     {view === 'landing' && (
                         <main className="max-w-6xl mx-auto px-6 flex flex-col items-center justify-center min-h-[70vh] fade-in text-center">
-                            <h1 className="text-7xl md:text-9xl font-brand font-black mb-6 italic bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent uppercase tracking-tighter">Challenge Everything.</h1>
-                            <p className="text-xl md:text-2xl opacity-40 mb-12 max-w-2xl mx-auto">{t.subtitle}</p>
-                            <button onClick={() => setView('home')} className="btn-premium px-12 py-5 rounded-3xl font-brand font-bold text-2xl uppercase tracking-widest">{t.start}</button>
+                            <h1 className="text-7xl md:text-9xl font-brand font-black mb-6 italic bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent uppercase tracking-tighter">MATH MASTER</h1>
+                            <p className="text-xl opacity-40 mb-12">{t.subtitle}</p>
+                            <div className="flex gap-4">
+                                <button onClick={() => setView('home')} className="btn-premium px-12 py-5 rounded-3xl font-brand font-bold text-2xl uppercase tracking-widest">{t.start}</button>
+                                <button onClick={() => setView('about')} className="bg-white/5 hover:bg-white/10 px-8 py-5 rounded-3xl font-bold">{t.navAbout}</button>
+                            </div>
                         </main>
                     )}
+
                     {view === 'about' && (
                         <div className="max-w-4xl mx-auto px-6 mt-10 grid md:grid-cols-2 gap-12 items-center fade-in">
                             <div><h1 className="text-6xl font-brand font-black mb-6 italic">{t.navAbout}</h1><button onClick={() => setView('landing')} className="text-indigo-400 font-bold hover:underline">← {t.back}</button></div>
@@ -471,86 +447,116 @@
                             </div>
                         </div>
                     )}
+
                     {view === 'home' && (
-                        <div className="max-w-md mx-auto px-6 mt-20 fade-in">
-                            <div className="glass-card p-10 text-center shadow-2xl">
-                                <h2 className="text-3xl font-brand font-black mb-10 italic text-cyan-400 uppercase tracking-tighter">{t.title}</h2>
+                        <div className="max-w-md mx-auto px-6 mt-10 fade-in">
+                            <div className="glass-card p-10 text-center">
                                 <input className="w-full bg-white/5 border border-white/10 p-5 rounded-2xl mb-4 outline-none focus:border-indigo-500 font-bold" placeholder={t.nickname} value={username} onChange={e => setUsername(e.target.value)} />
                                 <button onClick={startHost} className="w-full btn-premium p-5 rounded-2xl font-bold text-lg mb-6 uppercase tracking-widest">{t.hostBtn}</button>
-                                <div className="text-[10px] font-black uppercase opacity-20 mb-6">--- OR ---</div>
-                                <input className="w-full bg-white/5 border border-white/10 p-5 rounded-2xl mb-4 outline-none focus:border-indigo-500 font-bold text-center tracking-[0.5em] text-2xl" placeholder="PIN" value={roomCode} maxLength={4} onChange={e => setRoomCode(e.target.value.replace(/[^0-9]/g, ''))} />
-                                <button onClick={joinRoom} disabled={roomCode.length < 4 || !username} className="w-full border border-white/10 p-5 rounded-2xl font-bold hover:bg-white/5 disabled:opacity-30 uppercase tracking-widest">{t.joinBtn}</button>
+                                <div className="opacity-20 mb-6 font-black uppercase text-xs">--- OR ---</div>
+                                <input className="w-full bg-white/5 border border-white/10 p-5 rounded-2xl mb-4 outline-none focus:border-indigo-500 font-bold text-center spacing-8 text-2xl" placeholder="PIN" value={roomCode} maxLength={4} onChange={e => setRoomCode(e.target.value)} />
+                                <button onClick={joinRoom} className="w-full border border-white/10 p-5 rounded-2xl font-bold hover:bg-white/5">JOIN ARENA</button>
                             </div>
                         </div>
                     )}
+
                     {view === 'waiting' && (
-                        <div className="max-w-4xl mx-auto px-6 mt-10 grid md:grid-cols-5 gap-8 fade-in">
-                            <div className="md:col-span-2 space-y-6">
-                                <div className="glass-card p-8 border-t-8 border-indigo-500">
-                                    <div className="text-[10px] font-black opacity-30 uppercase tracking-[0.2em] mb-4">Arena PIN</div>
-                                    <h2 className="text-7xl font-brand font-bold tracking-[0.2em] text-center mb-6">{pin || roomCode}</h2>
-                                    <button onClick={() => { navigator.clipboard.writeText(pin || roomCode); alert('PIN Copied!'); }} className="w-full py-2 bg-indigo-500/10 text-indigo-400 font-bold text-xs uppercase hover:bg-indigo-500 rounded-lg hover:text-white transition-all">{t.copy}</button>
-                                </div>
+                        <div className="max-w-6xl mx-auto px-6 mt-10 grid md:grid-cols-2 gap-12 fade-in">
+                            <div className="glass-card p-12 text-center border-t-8 border-indigo-500">
+                                <div className="text-xs font-black opacity-30 mb-4 uppercase tracking-[0.3em]">Game PIN</div>
+                                <div className="text-9xl font-brand font-black tracking-widest mb-10">{pin || roomCode}</div>
                                 {isHost && <button onClick={startGameHost} className="w-full btn-premium py-6 rounded-3xl font-brand font-black text-2xl uppercase tracking-widest animate-pulse">{t.startHost}</button>}
                             </div>
-                            <div className="md:col-span-3">
+                            <div>
                                 <h3 className="text-4xl font-brand font-black italic mb-8 uppercase tracking-tighter">{t.players} · {players.length}</h3>
                                 <div className="grid grid-cols-2 gap-4">
                                     {players.map((p, i) => (
-                                        <div key={i} className="p-5 glass-card flex items-center gap-4 bg-white/5 border-white/5 slide-up"><div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center font-black text-white">{p.name[0]}</div><span className="font-bold tracking-tight">{p.name} {p.id === 'me' && '👑'}</span></div>
+                                        <div key={i} className="p-5 glass-card flex items-center gap-4 bg-white/5 slide-up"><div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center font-black text-white">{p.name[0]}</div><span className="font-bold">{p.name} {p.id === 'me' && '👑'}</span></div>
                                     ))}
                                 </div>
                             </div>
                         </div>
                     )}
+
                     {view === 'playing' && (
-                        <div className="max-w-5xl mx-auto px-6 fade-in">
-                            <div className="flex justify-between items-end mb-6">
-                                <div>
-                                    <div className="text-indigo-400 font-black mb-1 uppercase tracking-widest text-sm">{currentQ.qType}</div>
-                                    <div className="text-5xl font-brand font-black tracking-tighter italic uppercase">{t.question} {currentQ.n}/10</div>
-                                </div>
+                        <div className="max-w-7xl mx-auto px-6 fade-in h-[85vh] flex flex-col">
+                            {/* TOP INFO BAR */}
+                            <div className="flex items-center justify-between mb-8">
+                                <div className="bg-white text-black px-8 py-3 rounded-lg font-black text-3xl shadow-xl">{currentQ.q}</div>
                                 <div className="flex gap-4">
-                                    <div className="glass-card px-8 py-4 flex flex-col items-center border-none"><div className="text-[10px] font-black opacity-30 mb-1">TIMER</div><div className={`text-3xl font-black ${timer < 5 ? 'text-rose-500 animate-ping' : 'text-yellow-400'}`}>{timer}s</div></div>
-                                    <div className="glass-card px-8 py-4 flex flex-col items-center border-none"><div className="text-[10px] font-black opacity-30 mb-1">{t.answered}</div><div className="text-3xl font-black text-emerald-400">{answersCount.r}/{answersCount.t}</div></div>
+                                    {isHost && <button onClick={skipQ} className="skip-btn">{t.skip}</button>}
+                                    <div className="bg-white/10 px-6 py-2 rounded-lg font-bold">FPS N/A | GPU 6%</div>
                                 </div>
                             </div>
-                            <div className="formula-box">{currentQ.formula}</div>
-                            <div className="glass-card p-16 md:p-24 text-center mb-10 shadow-2xl relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-full h-2 bg-indigo-500"></div>
-                                <h2 className="text-7xl md:text-9xl font-brand font-black tracking-tighter italic">{currentQ.q}</h2>
+
+                            {/* MAIN AREA */}
+                            <div className="flex-1 grid grid-cols-6 gap-8 items-center mb-8">
+                                {/* TIMER CIRCLE */}
+                                <div className="col-span-1 flex justify-center">
+                                    <div className="circle-counter border-indigo-500 text-5xl">
+                                        <span className={timer < 5 ? 'text-red-500 animate-ping' : ''}>{timer}</span>
+                                    </div>
+                                </div>
+
+                                {/* CENTER IMAGE (CHALKBOARD) */}
+                                <div className="col-span-4 h-full chalkboard flex flex-col items-center justify-center text-center p-8">
+                                    <h2 className="text-2xl font-brand font-black mb-4 opacity-70 italic">{currentQ.qType}</h2>
+                                    <div className="text-lg bg-orange-500/20 px-6 py-2 rounded-full border border-orange-500/50 mb-8 font-mono">{currentQ.formula}</div>
+                                    <div className="text-center">
+                                        <h3 className="text-8xl md:text-9xl font-brand font-black tracking-tighter opacity-10 blur-[1px] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none">E=mc²</h3>
+                                        <h3 className="text-8xl md:text-9xl font-brand font-black tracking-tighter opacity-10 absolute top-1/4 right-1/4 select-none">∫√π</h3>
+                                        <img src="https://www.transparenttextures.com/patterns/black-linen.png" className="absolute inset-0 opacity-10 pointer-events-none" />
+                                    </div>
+                                </div>
+
+                                {/* ANSWER COUNT CIRCLE */}
+                                <div className="col-span-1 flex flex-col items-center gap-2">
+                                    <div className="circle-counter border-purple-500 text-4xl">{answersCount.r}</div>
+                                    <span className="text-xs font-black uppercase tracking-widest opacity-40">{t.answered}</span>
+                                </div>
                             </div>
-                            <div className="grid grid-cols-2 gap-6">
-                                {currentQ.opts.map((o, i) => (
-                                    <button key={i} onClick={() => submit(o)} disabled={hasAnswered} className={`option-btn shadow-2xl border-b-8 border-black/20 ${['bg-indigo-600', 'bg-purple-600', 'bg-cyan-600', 'bg-rose-600'][i]} ${hasAnswered ? 'opacity-10 grayscale' : 'hover:-translate-y-2'}`}>{o}</button>
-                                ))}
+
+                            {/* ANSWERS GRID */}
+                            <div className="grid grid-cols-2 gap-4 h-[35vh]">
+                                {currentQ.opts.map((o, i) => {
+                                    const configs = [
+                                        { color: 'kh-red', shape: 'tri' },
+                                        { color: 'kh-blue', shape: 'dia' },
+                                        { color: 'kh-yellow', shape: 'cir' },
+                                        { color: 'kh-green', shape: 'squ' }
+                                    ];
+                                    return (
+                                        <button key={i} onClick={() => submit(o)} disabled={hasAnswered} className={`kh-btn ${configs[i].color} ${hasAnswered ? 'opacity-20 grayscale' : ''}`}>
+                                            <Shape type={configs[i].shape} />
+                                            <span>{o}</span>
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
                     )}
+
                     {view === 'leaderboard' && (
                         <div className="max-w-2xl mx-auto px-6 text-center fade-in">
-                            <h2 className="text-6xl font-brand font-black italic mb-12 tracking-tighter uppercase underline decoration-indigo-500 decoration-8 underline-offset-8">{t.scoreboard}</h2>
+                            <h2 className="text-6xl font-brand font-black italic mb-12 uppercase">{t.scoreboard}</h2>
                             <div className="space-y-4">
                                 {leaderboard.map((p, i) => (
-                                    <div key={i} className={`p-8 glass-card flex justify-between items-center ${i === 0 ? 'bg-indigo-500/20 border-indigo-500/50 scale-105 shadow-2xl' : ''}`}>
-                                        <div className="flex items-center gap-6"><span className="text-5xl font-brand font-black opacity-5 italic">#{i + 1}</span><span className="text-2xl font-black uppercase italic tracking-tighter">{p.name}</span></div>
-                                        <div className="text-4xl font-brand font-black text-indigo-400">{p.score} <span className="text-xs uppercase opacity-20">pts</span></div>
+                                    <div key={i} className={`p-8 glass-card flex justify-between items-center ${i === 0 ? 'bg-indigo-500/20 scale-105 border-indigo-500' : ''}`}>
+                                        <div className="flex items-center gap-6"><span className="text-5xl font-black opacity-10 italic">#{i + 1}</span><span className="text-2xl font-black uppercase">{p.name}</span></div>
+                                        <div className="text-4xl font-black text-indigo-400">{p.score} <span className="text-xs opacity-20">pts</span></div>
                                     </div>
                                 ))}
                             </div>
                         </div>
                     )}
+
                     {view === 'gameover' && (
-                        <div className="max-w-3xl mx-auto px-6 text-center mt-10 scale-in">
-                            <div className="text-9xl mb-12 animate-bounce">👑</div>
-                            <h1 className="text-8xl font-brand font-black italic mb-4 bg-gradient-to-b from-indigo-400 to-purple-500 bg-clip-text text-transparent uppercase tracking-tighter">{t.champion}</h1>
-                            <div className="space-y-4 mb-20 max-w-md mx-auto">
-                                {winners.map((p, i) => (
-                                    <div key={i} className={`glass-card p-6 flex justify-between items-center ${i === 0 ? 'scale-110 border-indigo-500 bg-indigo-500/10 mb-8' : 'opacity-60'}`}>
-                                        <div className="flex items-center gap-6"><div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-brand font-black text-2xl ${i === 0 ? 'bg-indigo-500' : 'bg-white/10'}`}>{i + 1}</div><span className="text-3xl font-brand font-black uppercase italic tracking-tighter">{p.name}</span></div>
-                                        <span className="text-4xl font-brand font-black opacity-30">{p.score} pts</span>
-                                    </div>
-                                ))}
+                        <div className="max-w-4xl mx-auto px-6 text-center mt-10 fade-in">
+                            <h1 className="text-8xl font-brand font-black italic mb-20 bg-gradient-to-b from-indigo-400 to-purple-500 bg-clip-text text-transparent uppercase">{t.champion}</h1>
+                            <div className="flex justify-center items-end gap-4 mb-20">
+                                {winners[1] && <div className="w-48 bg-white/5 p-8 rounded-t-3xl border-t-4 border-slate-400"><div className="text-4xl mb-4">🥈</div><div className="font-bold truncate">{winners[1].name}</div></div>}
+                                {winners[0] && <div className="w-56 bg-white/10 p-10 rounded-t-3xl border-t-8 border-indigo-500 relative -top-8 shadow-2xl"><div className="text-6xl mb-4">🥇</div><div className="text-xl font-black truncate">{winners[0].name}</div></div>}
+                                {winners[2] && <div className="w-48 bg-white/5 p-8 rounded-t-3xl border-t-4 border-amber-800"><div className="text-4xl mb-4">🥉</div><div className="font-bold truncate">{winners[2].name}</div></div>}
                             </div>
                             <button onClick={() => window.location.reload()} className="btn-premium px-16 py-6 rounded-3xl font-brand font-black text-3xl uppercase tracking-widest">{t.back}</button>
                         </div>
