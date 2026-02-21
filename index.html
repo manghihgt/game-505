@@ -4,13 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MATH MASTER | Standalone Edition</title>
+    <title>MATH MASTER | Serverless P2P Edition</title>
     <!-- Dependencies from CDN -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -62,15 +62,43 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useRef } = React;
+
+        // --- MATH LOGIC ---
+        const generateOptions = (correct) => {
+            const options = new Set();
+            options.add(correct);
+            while (options.size < 4) {
+                const offset = Math.floor(Math.random() * 20) - 10;
+                const op = correct + (offset === 0 ? 5 : offset);
+                if (op >= 0) options.add(op);
+            }
+            return Array.from(options).sort(() => Math.random() - 0.5);
+        };
+
+        const generateQuestion = () => {
+            const a1 = Math.floor(Math.random() * 15) + 1;
+            const d = Math.floor(Math.random() * 10) + 2;
+            const seq = [a1, a1 + d, a1 + d * 2, a1 + d * 3, a1 + d * 4];
+            const missingIdx = Math.floor(Math.random() * 5);
+            const answer = seq[missingIdx];
+            const displaySeq = [...seq];
+            displaySeq[missingIdx] = '...';
+            return {
+                question: `Find the missing number: ${displaySeq.join(', ')}`,
+                options: generateOptions(answer),
+                answer
+            };
+        };
 
         function App() {
-            const [socket, setSocket] = useState(null);
-            const [connected, setConnected] = useState(false);
+            const [myPeer, setMyPeer] = useState(null);
+            const [connections, setConnections] = useState([]); // For Host: list of peer connections
+            const [hostConn, setHostConn] = useState(null); // For Client: connection to host
+
             const [username, setUsername] = useState(localStorage.getItem('math_username') || '');
-            const [serverUrl, setServerUrl] = useState(localStorage.getItem('math_server_url') || '');
             const [roomCode, setRoomCode] = useState('');
-            const [gameState, setGameState] = useState('home');
+            const [gameState, setGameState] = useState('home'); // home, waiting, playing, leaderboard, gameover
             const [players, setPlayers] = useState([]);
             const [currentQuestion, setCurrentQuestion] = useState(null);
             const [leaderboardData, setLeaderboardData] = useState(null);
@@ -80,69 +108,210 @@
             const [timer, setTimer] = useState(30);
             const [answersCount, setAnswersCount] = useState({ received: 0, total: 0 });
 
-            useEffect(() => {
-                const isLocalFile = window.location.protocol === 'file:';
-                const detectedUrl = isLocalFile || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-                    ? 'http://localhost:5000'
-                    : serverUrl || window.location.origin;
+            // Refs for mutable state shared with effects
+            const hostGameRef = useRef({
+                questions: [],
+                currentIdx: 0,
+                players: [],
+                answersReceived: 0,
+                timerId: null
+            });
 
-                if (!serverUrl) setServerUrl(detectedUrl);
-                connectToSocket(serverUrl || detectedUrl);
+            // --- PEER INITIALIZATION ---
+            useEffect(() => {
+                // Auto-fill room code from URL
+                const params = new URLSearchParams(window.location.search);
+                const r = params.get('room');
+                if (r) setRoomCode(r.toUpperCase());
             }, []);
 
-            const connectToSocket = (url) => {
-                if (socket) socket.disconnect();
-                console.log('Connecting to:', url);
-                const s = io(url, { reconnectionAttempts: 3, timeout: 5000 });
-                setSocket(s);
+            // --- HOST LOGIC ---
+            const createRoom = () => {
+                if (!username) return alert('Enter nickname first');
+                const peer = new Peer(); // Auto ID generated
+                setMyPeer(peer);
+                setIsHost(true);
 
-                s.on('connect', () => {
-                    setConnected(true);
-                    localStorage.setItem('math_server_url', url);
-                });
-                s.on('disconnect', () => setConnected(false));
-                s.on('connect_error', () => setConnected(false));
-
-                s.on('room_created', ({ roomCode, players }) => {
-                    setRoomCode(roomCode);
-                    setPlayers(players);
+                peer.on('open', (id) => {
+                    const shortId = id.substring(0, 5).toUpperCase();
+                    // We actually need the full ID for connection, but let's try a custom ID if possible or just use part
+                    // Standard PeerJS doesn't guarantee short ID uniqueness, so we'll use a better approach
+                    setRoomCode(id); // Use the full Peer ID as room code
+                    const initialPlayers = [{ id: 'host', username, score: 0 }];
+                    setPlayers(initialPlayers);
+                    hostGameRef.current.players = initialPlayers;
                     setGameState('waiting');
-                    setIsHost(true);
                 });
 
-                s.on('player_joined', ({ players }) => setPlayers(players));
-
-                s.on('joined_successfully', ({ roomCode, players }) => {
-                    setRoomCode(roomCode);
-                    setPlayers(players);
-                    setGameState('waiting');
-                    setIsHost(false);
+                peer.on('connection', (conn) => {
+                    conn.on('open', () => {
+                        conn.on('data', (data) => handleHostData(conn, data));
+                        setConnections(prev => [...prev, conn]);
+                    });
                 });
+            };
 
-                s.on('next_question', (question) => {
-                    setCurrentQuestion(question);
+            const handleHostData = (conn, data) => {
+                const game = hostGameRef.current;
+
+                if (data.type === 'join') {
+                    // Check room limit
+                    if (game.players.length >= 10) {
+                        conn.send({ type: 'error', message: 'Room is full (Max 10)' });
+                        return;
+                    }
+                    const newPlayer = { id: conn.peer, username: data.username, score: 0 };
+                    game.players.push(newPlayer);
+                    setPlayers([...game.players]);
+
+                    // Broadcast to everyone
+                    broadcast({ type: 'player_joined', players: game.players });
+                }
+
+                if (data.type === 'submit_answer') {
+                    const player = game.players.find(p => p.id === conn.peer);
+                    if (player && !player.answered) {
+                        player.answered = true;
+                        const correct = data.answer === game.questions[game.currentIdx].answer;
+                        if (correct) player.score += 1;
+
+                        game.answersReceived++;
+                        const progress = { received: game.answersReceived, total: game.players.length };
+                        setAnswersCount(progress);
+                        broadcast({ type: 'answer_update', ...progress });
+
+                        if (game.answersReceived === game.players.length) {
+                            clearTimeout(game.timerId);
+                            showLeaderboard();
+                        }
+                    }
+                }
+            };
+
+            const broadcast = (data) => {
+                connections.forEach(conn => conn.send(data));
+                // Host also updates their own UI
+                if (data.type === 'player_joined') setPlayers(data.players);
+                if (data.type === 'next_question') {
+                    setCurrentQuestion(data);
                     setGameState('playing');
                     setHasAnswered(false);
                     setTimer(30);
-                    setAnswersCount({ received: 0, total: players.length });
-                });
-
-                s.on('answer_update', (data) => setAnswersCount(data));
-
-                s.on('leaderboard', (data) => {
+                    setAnswersCount({ received: 0, total: hostGameRef.current.players.length });
+                }
+                if (data.type === 'leaderboard') {
                     setLeaderboardData(data);
                     setGameState('leaderboard');
-                });
-
-                s.on('game_over', (data) => {
+                }
+                if (data.type === 'game_over') {
                     setGameOverData(data);
                     setGameState('gameover');
                     confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-                });
-
-                s.on('error', (msg) => alert('⚠️ ' + msg));
+                }
+                if (data.type === 'answer_update') setAnswersCount({ received: data.received, total: data.total });
             };
 
+            const startGameHost = () => {
+                if (players.length < 2) return alert('Need at least 2 players');
+                const game = hostGameRef.current;
+                game.questions = Array.from({ length: 10 }, () => generateQuestion());
+                game.currentIdx = 0;
+                sendNextQuestion();
+            };
+
+            const sendNextQuestion = () => {
+                const game = hostGameRef.current;
+                if (game.currentIdx < 10) {
+                    game.answersReceived = 0;
+                    game.players.forEach(p => p.answered = false);
+                    const q = game.questions[game.currentIdx];
+                    broadcast({
+                        type: 'next_question',
+                        question: q.question,
+                        options: q.options,
+                        number: game.currentIdx + 1,
+                        total: 10
+                    });
+
+                    game.timerId = setTimeout(showLeaderboard, 30000);
+                } else {
+                    const sorted = [...game.players].sort((a, b) => b.score - a.score);
+                    broadcast({ type: 'game_over', winner: sorted[0], players: sorted });
+                }
+            };
+
+            const showLeaderboard = () => {
+                const game = hostGameRef.current;
+                const sorted = [...game.players].sort((a, b) => b.score - a.score);
+                broadcast({ type: 'leaderboard', players: sorted });
+
+                game.currentIdx++;
+                setTimeout(sendNextQuestion, 5000);
+            };
+
+            // --- CLIENT LOGIC ---
+            const joinRoom = () => {
+                if (!username || !roomCode) return alert('Enter nickname and Room ID');
+                const peer = new Peer();
+                setMyPeer(peer);
+                setIsHost(false);
+
+                peer.on('open', () => {
+                    const conn = peer.connect(roomCode);
+                    setHostConn(conn);
+                    conn.on('open', () => {
+                        conn.send({ type: 'join', username });
+                    });
+                    conn.on('data', handleClientData);
+                    conn.on('error', (err) => alert('Connection failed: ' + err));
+                });
+            };
+
+            const handleClientData = (data) => {
+                if (data.type === 'error') alert(data.message);
+                if (data.type === 'player_joined') setPlayers(data.players);
+                if (data.type === 'next_question') {
+                    setCurrentQuestion(data);
+                    setGameState('playing');
+                    setHasAnswered(false);
+                    setTimer(30);
+                    setAnswersCount({ received: 0, total: data.total_players || players.length });
+                }
+                if (data.type === 'answer_update') setAnswersCount({ received: data.received, total: data.total });
+                if (data.type === 'leaderboard') {
+                    setLeaderboardData(data);
+                    setGameState('leaderboard');
+                }
+                if (data.type === 'game_over') {
+                    setGameOverData(data);
+                    setGameState('gameover');
+                    confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+                }
+            };
+
+            const submitAnswer = (option) => {
+                if (hasAnswered) return;
+                setHasAnswered(true);
+                if (isHost) {
+                    // Host handles their own answer
+                    const game = hostGameRef.current;
+                    const player = game.players.find(p => p.id === 'host');
+                    player.answered = true;
+                    if (option === game.questions[game.currentIdx].answer) player.score += 1;
+                    game.answersReceived++;
+                    const progress = { received: game.answersReceived, total: game.players.length };
+                    setAnswersCount(progress);
+                    broadcast({ type: 'answer_update', ...progress });
+                    if (game.answersReceived === game.players.length) {
+                        clearTimeout(game.timerId);
+                        showLeaderboard();
+                    }
+                } else {
+                    hostConn.send({ type: 'submit_answer', answer: option });
+                }
+            };
+
+            // --- GLOBAL EFFECTS ---
             useEffect(() => {
                 localStorage.setItem('math_username', username);
             }, [username]);
@@ -155,92 +324,45 @@
                 return () => clearInterval(interval);
             }, [gameState, timer]);
 
-            const createRoom = () => username && socket.emit('create_room', { username });
-            const joinRoom = () => username && roomCode && socket.emit('join_room', { roomCode, username });
-            const startGame = () => socket.emit('start_game', { roomCode });
-            const submitAnswer = (option) => {
-                if (hasAnswered) return;
-                setHasAnswered(true);
-                socket.emit('submit_answer', { roomCode, answer: option });
-            };
-
+            // --- UI HELPERS ---
             const copyJoinLink = () => {
                 const url = window.location.origin + window.location.pathname + '?room=' + roomCode;
                 navigator.clipboard.writeText(url);
-                alert('Join link copied to clipboard!\nSend it to your friends.');
+                alert('Join link copied!');
             };
 
-            // Auto-fill room code from URL if present
-            useEffect(() => {
-                const params = new URLSearchParams(window.location.search);
-                const r = params.get('room');
-                if (r) setRoomCode(r.toUpperCase());
-            }, []);
-
+            // --- RENDER SCREENS ---
             if (gameState === 'home') return (
-                <div className="relative min-h-screen">
-                    <div className="fixed top-4 right-4 flex flex-col items-end gap-2">
-                        <div className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-2 ${connected ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                            <div className={`w-2 h-2 rounded-full ${connected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
-                            {connected ? 'ONLINE' : 'OFFLINE'}
-                        </div>
-                        <div className="flex flex-col gap-1 items-end">
-                            <label className="text-[10px] opacity-40 uppercase font-bold">Backend Server URL</label>
-                            <div className="flex gap-2">
-                                <input
-                                    className="bg-white/10 border border-white/20 text-[10px] p-2 rounded outline-none w-48"
-                                    placeholder="https://your-server.onrender.com"
-                                    value={serverUrl}
-                                    onChange={e => setServerUrl(e.target.value)}
-                                />
-                                <button onClick={() => connectToSocket(serverUrl)} className="bg-indigo-500 text-[10px] px-3 py-1 rounded font-bold hover:bg-indigo-400">Connect</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="max-w-md mx-auto pt-32 p-10 glass-card text-center shadow-2xl">
-                        <h1 className="text-5xl font-black mb-10 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">MATH MASTER</h1>
-                        <input className="w-full bg-white/5 border border-white/10 p-4 rounded-xl mb-4 outline-none focus:border-indigo-500" placeholder="Nickname" value={username} onChange={e => setUsername(e.target.value)} />
-                        <button
-                            onClick={createRoom}
-                            disabled={!connected}
-                            className={`w-full p-4 rounded-xl font-bold text-lg mb-6 ${connected ? 'btn-primary' : 'bg-white/10 opacity-50 cursor-not-allowed'}`}
-                        >
-                            Create Room
-                        </button>
-                        <div className="border-t border-white/10 pt-6">
-                            <input className="w-full bg-white/5 border border-white/10 p-4 rounded-xl mb-4 outline-none" placeholder="Room Code" value={roomCode} onChange={e => setRoomCode(e.target.value.toUpperCase())} />
-                            <button
-                                onClick={joinRoom}
-                                disabled={!connected}
-                                className={`w-full border p-4 rounded-xl font-bold ${connected ? 'border-white/20 hover:bg-white/5' : 'border-white/5 opacity-50 cursor-not-allowed'}`}
-                            >
-                                Join Room
-                            </button>
-                        </div>
+                <div className="max-w-md mx-auto mt-32 p-10 glass-card text-center shadow-2xl scale-in">
+                    <h1 className="text-5xl font-black mb-10 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">MATH MASTER</h1>
+                    <p className="text-xs mb-4 opacity-50 uppercase tracking-widest font-bold">✨ Serverless Multiplayer Edition ✨</p>
+                    <input className="w-full bg-white/5 border border-white/10 p-4 rounded-xl mb-4 outline-none focus:border-indigo-500 transition-all font-bold" placeholder="Nickname" value={username} onChange={e => setUsername(e.target.value)} />
+                    <button onClick={createRoom} className="w-full btn-primary p-4 rounded-xl font-bold text-lg mb-6 active:scale-95 shadow-lg shadow-indigo-500/20">Create Room</button>
+                    <div className="border-t border-white/10 pt-6">
+                        <input className="w-full bg-white/5 border border-white/10 p-4 rounded-xl mb-4 outline-none focus:border-indigo-500 font-bold" placeholder="Room ID" value={roomCode} onChange={e => setRoomCode(e.target.value)} />
+                        <button onClick={joinRoom} className="w-full border border-white/20 p-4 rounded-xl font-bold hover:bg-white/5 transition-colors active:scale-95">Join Room</button>
                     </div>
                 </div>
             );
 
             if (gameState === 'waiting') return (
-                <div className="max-w-2xl mx-auto mt-16 p-8">
-                    <div className="glass-card p-10 text-center mb-8">
-                        <p className="text-indigo-400 font-bold tracking-widest uppercase">Room Code</p>
-                        <h1 className="text-7xl font-black">{roomCode}</h1>
+                <div className="max-w-2xl mx-auto mt-16 p-8 fade-in">
+                    <div className="glass-card p-10 text-center mb-8 relative overflow-hidden">
+                        <div className="absolute top-0 left-0 w-full h-1 bg-indigo-500 animate-pulse"></div>
+                        <p className="text-indigo-400 font-bold tracking-widest uppercase mb-2">Room ID</p>
+                        <h1 className="text-3xl font-black break-all select-all cursor-pointer bg-white/5 p-2 rounded">{roomCode}</h1>
+                        <button onClick={copyJoinLink} className="text-indigo-300 text-xs mt-4 font-bold hover:underline opacity-60">🔗 Copy Invite Link</button>
                     </div>
                     <div className="glass-card p-8">
                         <div className="flex justify-between items-center mb-6">
-                            <div>
-                                <h2 className="text-2xl font-bold">Players ({players.length})</h2>
-                                <button onClick={copyJoinLink} className="text-indigo-400 text-sm font-bold mt-1 hover:underline">🔗 Copy Invite Link</button>
-                            </div>
-                            {isHost && <button onClick={startGame} className="btn-primary px-8 py-3 rounded-xl font-bold animate-pulse">Start Game</button>}
+                            <h2 className="text-2xl font-bold">Players ({players.length}/10)</h2>
+                            {isHost && <button onClick={startGameHost} className="btn-primary px-8 py-3 rounded-xl font-bold hover:scale-105 active:scale-95">Start Game</button>}
                         </div>
                         <div className="grid grid-cols-2 gap-4">
-                            {players.map(p => (
-                                <div key={p.id} className="p-4 bg-white/5 rounded-xl border border-white/5 flex items-center gap-3">
-                                    <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center font-bold">{p.username[0]}</div>
-                                    <span>{p.username}</span>
+                            {players.map((p, i) => (
+                                <div key={i} className="p-4 bg-white/5 rounded-xl border border-white/5 flex items-center gap-3 slide-up">
+                                    <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${p.id === 'host' ? 'bg-indigo-500' : 'bg-purple-500/50'}`}>{p.username[0]}</div>
+                                    <span className="font-medium">{p.username} {p.id === 'host' && '(Host)'}</span>
                                 </div>
                             ))}
                         </div>
@@ -249,35 +371,41 @@
             );
 
             if (gameState === 'playing') return (
-                <div className="max-w-4xl mx-auto mt-16 p-6">
+                <div className="max-w-4xl mx-auto mt-16 p-6 fade-in">
                     <div className="flex justify-between items-center mb-8">
                         <div className="glass-card px-6 py-2 flex items-center gap-4">
                             <span className="text-indigo-400 font-bold">Q{currentQuestion.number}/10</span>
-                            <span className="text-yellow-400 font-bold">⏱ {timer}s</span>
+                            <span className={`font-bold transition-colors ${timer < 5 ? 'text-red-500 animate-ping' : 'text-yellow-400'}`}>⏱ {timer}s</span>
                             <span className="text-green-400 font-bold ml-4">✓ {answersCount.received}/{answersCount.total} Answered</span>
                         </div>
                         <div className="text-xl font-bold opacity-60">{username}</div>
                     </div>
-                    <div className="glass-card p-16 text-center mb-10 min-h-[250px] flex items-center justify-center border-b-4 border-indigo-500">
-                        <h1 className="text-5xl font-extrabold">{currentQuestion.question}</h1>
+                    <div className="glass-card p-16 text-center mb-10 min-h-[250px] flex items-center justify-center border-b-8 border-indigo-500 shadow-2xl">
+                        <h1 className="text-5xl font-extrabold leading-tight">{currentQuestion.question}</h1>
                     </div>
                     <div className="quiz-grid">
                         {currentQuestion.options.map((opt, i) => (
                             <button key={i} onClick={() => submitAnswer(opt)}
-                                className={`option-btn ${['bg-red-500', 'bg-blue-500', 'bg-yellow-500', 'bg-green-500'][i]} ${hasAnswered ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}`}>
+                                disabled={hasAnswered}
+                                className={`option-btn shadow-lg ${['bg-rose-500', 'bg-sky-500', 'bg-amber-500', 'bg-emerald-500'][i]} ${hasAnswered ? 'opacity-30 cursor-not-allowed grayscale' : 'hover:scale-[1.03] active:scale-95'}`}>
                                 {opt}
                             </button>
                         ))}
                     </div>
+                    {hasAnswered && (
+                        <div className="text-center mt-8 text-indigo-400 font-bold animate-bounce mt-10">
+                            Waiting for other players...
+                        </div>
+                    )}
                 </div>
             );
 
             if (gameState === 'leaderboard') return (
-                <div className="max-w-2xl mx-auto mt-16 p-8">
-                    <h1 className="text-5xl font-black text-center mb-10 italic">TOP PLAYERS</h1>
+                <div className="max-w-2xl mx-auto mt-16 p-8 fade-in">
+                    <h1 className="text-5xl font-black text-center mb-10 italic tracking-tighter text-indigo-400">SCOREBOARD</h1>
                     <div className="space-y-4">
                         {leaderboardData.players.map((p, i) => (
-                            <div key={p.id} className={`p-6 glass-card flex justify-between items-center ${i === 0 ? 'border-yellow-500 border-2 bg-yellow-500/10' : ''}`}>
+                            <div key={i} className={`p-6 glass-card flex justify-between items-center transition-all ${i === 0 ? 'border-yellow-500/50 border-2 bg-yellow-500/10 scale-105' : ''}`}>
                                 <div className="flex items-center gap-4">
                                     <span className="text-3xl font-black opacity-20">#{i + 1}</span>
                                     <span className="text-2xl font-bold">{p.username}</span>
@@ -286,17 +414,23 @@
                             </div>
                         ))}
                     </div>
-                    <p className="text-center mt-10 text-white/40 animate-bounce">Next question coming soon...</p>
+                    <div className="text-center mt-12">
+                        <div className="inline-block px-8 py-2 bg-indigo-500/20 rounded-full animate-pulse border border-indigo-500/30">
+                            <p className="text-indigo-400 font-bold">Preparation for next question...</p>
+                        </div>
+                    </div>
                 </div>
             );
 
             if (gameState === 'gameover') return (
-                <div className="max-w-md mx-auto mt-32 p-10 glass-card text-center">
-                    <span className="text-8xl">🏆</span>
-                    <h1 className="text-6xl font-black mb-4">FINISH!</h1>
+                <div className="max-w-md mx-auto mt-32 p-10 glass-card text-center scale-in shadow-2xl border-t-8 border-indigo-500">
+                    <div className="mb-6 relative">
+                        <span className="text-9xl">👑</span>
+                    </div>
+                    <h1 className="text-6xl font-black mb-4">VICTORY!</h1>
                     <h2 className="text-3xl font-bold text-yellow-400 mb-2">{gameOverData.winner.username}</h2>
-                    <p className="text-5xl font-black mb-10">{gameOverData.winner.score} pts</p>
-                    <button onClick={() => window.location.reload()} className="w-full btn-primary p-4 rounded-xl font-bold">Back to Menu</button>
+                    <p className="text-5xl font-black mb-10 text-indigo-400">{gameOverData.winner.score} pts</p>
+                    <button onClick={() => window.location.reload()} className="w-full btn-primary p-4 rounded-xl font-bold text-lg shadow-lg hover:rotate-1">🏠 Play Again</button>
                 </div>
             );
 
