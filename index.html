@@ -1,690 +1,967 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MATH MASTER | macOS M2 Edition</title>
-    <!-- Dependencies -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Kanit:wght@300;400;600&display=swap"
-        rel="stylesheet">
-    <style>
-        :root {
-            --mac-bg: #000;
-            --mac-accent: #007AFF;
-            --mac-glass: rgba(255, 255, 255, 0.2);
-            --mac-glass-dark: rgba(0, 0, 0, 0.3);
-            --mac-text: #ffffff;
-            --mac-radius: 12px;
-            --kahoot-purple: #46178f;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MATH 5/5 Quiz Game</title>
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", 'Kanit';
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            height: 100vh;
-            width: 100vw;
-            background: #000;
-        }
+  <!-- Fonts & CDNs -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Inter:wght@400;700&display=swap"
+    rel="stylesheet">
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+  <script src="https://unpkg.com/html5-qrcode"></script>
 
-        .desktop-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            background: linear-gradient(135deg, #1e0533 0%, #3e0a5a 25%, #6a1b9a 50%, #9c27b0 75%, #e1bee7 100%);
-            background-size: 400% 400%;
-            animation: meshGradient 15s ease infinite;
-        }
+  <style>
+    :root {
+      --primary: #6366f1;
+      --secondary: #a855f7;
+      --accent: #ec4899;
+      --glass: rgba(255, 255, 255, 0.1);
+      --glass-bright: rgba(255, 255, 255, 0.2);
+      --glass-border: rgba(255, 255, 255, 0.3);
+      --text: #ffffff;
+      --text-dim: rgba(255, 255, 255, 0.7);
 
-        @keyframes meshGradient {
-            0% {
-                background-position: 0% 50%;
-            }
+      --k-red: #ff3355;
+      --k-blue: #45a3e5;
+      --k-yellow: #ffca28;
+      --k-green: #66bf39;
+    }
 
-            50% {
-                background-position: 100% 50%;
-            }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-            100% {
-                background-position: 0% 50%;
-            }
-        }
+    @keyframes gradientBG {
+      0% {
+        background-position: 0% 50%;
+      }
 
-        .mac-menubar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 24px;
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            display: flex;
-            align-items: center;
-            padding: 0 12px;
-            color: #fff;
-            font-size: 13px;
-            font-weight: 500;
-            z-index: 1000;
-        }
+      50% {
+        background-position: 100% 50%;
+      }
 
-        .menubar-item {
-            padding: 0 10px;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            cursor: default;
-        }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
 
-        .menubar-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
+    body {
+      font-family: 'Inter', 'Outfit', sans-serif;
+      background: linear-gradient(-45deg, #1e1b4b, #312e81, #4c1d95, #581c87);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-        .menubar-left {
-            display: flex;
-            flex: 1;
-            align-items: center;
-        }
+    /* --- NAVBAR --- */
+    .navbar {
+      background: rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid var(--glass-border);
+    }
 
-        .menubar-right {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+    .nav-logo {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: white;
+      letter-spacing: -1px;
+      cursor: pointer;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    }
 
-        .mac-window {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border-radius: 12px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            width: 95%;
-            max-width: 1200px;
-            height: 85vh;
-            margin: auto;
-            position: relative;
-            color: #333;
-        }
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+      align-items: center;
+    }
 
-        .window-titlebar {
-            height: 38px;
-            display: flex;
-            align-items: center;
-            padding: 0 15px;
-            background: rgba(255, 255, 255, 0.35);
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-        }
+    .nav-item {
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1rem;
+      color: white;
+      opacity: 0.8;
+      transition: 0.3s;
+    }
 
-        .traffic-lights {
-            display: flex;
-            gap: 8px;
-        }
+    .nav-item:hover {
+      opacity: 1;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
 
-        .dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-        }
+    .lang-toggle {
+      background: var(--glass);
+      padding: 0.4rem 1rem;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      border: 1px solid var(--glass-border);
+      cursor: pointer;
+      color: white;
+      font-weight: bold;
+    }
 
-        .dot-red {
-            background: #FF5F56;
-            border: 0.5px solid #E0443E;
-        }
+    /* --- PAGES --- */
+    .page-content {
+      padding: 4rem 2rem;
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+    }
 
-        .dot-yellow {
-            background: #FFBD2E;
-            border: 0.5px solid #DEA123;
-        }
+    .glass-card {
+      background: var(--glass);
+      backdrop-filter: blur(25px);
+      border: 1px solid var(--glass-border);
+      border-radius: 30px;
+      padding: 3rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
 
-        .dot-green {
-            background: #27C93F;
-            border: 0.5px solid #1AAB29;
-        }
+    /* --- AUTH & LOBBY --- */
+    .auth-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 80vh;
+    }
 
-        .window-content {
-            flex: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            padding: 0;
-        }
+    .hero-title {
+      font-size: 5rem;
+      font-weight: 900;
+      letter-spacing: -2px;
+      margin-bottom: 1rem;
+      background: linear-gradient(to right, #fff, #cbd5e1);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.1;
+      text-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
 
-        .kahoot-pin-box {
-            background: white;
-            color: #333;
-            display: flex;
-            align-items: center;
-            padding: 15px 40px;
-            border-radius: 4px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            position: relative;
-            z-index: 10;
-        }
+    .auth-card {
+      background: var(--glass-bright);
+      backdrop-filter: blur(30px);
+      padding: 3rem;
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+    }
 
-        .pin-text {
-            font-size: 1.2rem;
-            font-weight: 800;
-            opacity: 0.6;
-            text-transform: uppercase;
-        }
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      text-align: left;
+    }
 
-        .pin-number {
-            font-size: 5rem;
-            font-weight: 900;
-            letter-spacing: 5px;
-            margin: 0 20px;
-        }
+    .input-label {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
 
-        .player-tile {
-            background: #46178f;
-            color: white;
-            padding: 15px 30px;
-            border-radius: 4px;
-            font-size: 1.5rem;
-            font-weight: 800;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
-            animation: playerJoin 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+    .input-group input {
+      width: 100%;
+      padding: 1rem 1.5rem;
+      background: rgba(0, 0, 0, 0.2);
+      border: 2px solid var(--glass-border);
+      border-radius: 12px;
+      font-size: 1.2rem;
+      color: white;
+      font-weight: bold;
+      transition: 0.3s;
+      text-align: center;
+    }
 
-        @keyframes playerJoin {
-            0% {
-                transform: scale(0);
-                opacity: 0;
-            }
+    .input-group input:focus {
+      border-color: white;
+      background: rgba(0, 0, 0, 0.3);
+      outline: none;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+    }
 
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
+    .k-btn {
+      padding: 1.2rem 2rem;
+      border: none;
+      border-radius: 16px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      cursor: pointer;
+      background: white;
+      color: #1e1b4b;
+      transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
 
-        .lobby-footer {
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(10px);
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: white;
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-        }
+    .k-btn:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    }
 
-        .mobile-join-input {
-            width: 100%;
-            padding: 15px;
-            font-size: 1.5rem;
-            font-weight: 900;
-            text-align: center;
-            border: 2px solid #ccc;
-            border-radius: 4px;
-            margin-bottom: 15px;
-        }
+    .k-btn.ghost {
+      background: var(--glass);
+      color: white;
+      border: 2px solid var(--glass-border);
+      box-shadow: none;
+    }
 
-        .mobile-join-btn {
-            width: 100%;
-            padding: 15px;
-            font-size: 1.2rem;
-            font-weight: 800;
-            background: #333;
-            color: white;
-            border-radius: 4px;
-        }
+    .k-btn.ghost:hover {
+      background: var(--glass-bright);
+      border-color: white;
+    }
 
-        #qrcode canvas,
-        #qrcode img {
-            width: 100px !important;
-            height: 100px !important;
-        }
+    /* --- QR SCANNER --- */
+    #reader {
+      width: 100% !important;
+      border: none !important;
+      border-radius: 20px;
+      overflow: hidden;
+      background: black;
+    }
 
-        @media (max-width: 768px) {
-            .pin-number {
-                font-size: 3rem;
-            }
+    .scanner-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(20px);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
 
-            .kahoot-pin-box {
-                padding: 10px 20px;
-                flex-direction: column;
-            }
+    .scanner-box {
+      width: 100%;
+      max-width: 500px;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      padding: 1rem;
+      border-radius: 30px;
+      position: relative;
+    }
 
-            #qrcode {
-                display: none;
-            }
-        }
-    </style>
+    .scanner-close {
+      position: absolute;
+      top: -50px;
+      right: 0;
+      background: white;
+      color: black;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    /* --- GAMEPLAY --- */
+    .game-view {
+      display: flex;
+      flex-direction: column;
+      min-height: calc(100vh - 70px);
+    }
+
+    .q-header {
+      background: var(--glass);
+      backdrop-filter: blur(25px);
+      border-bottom: 2px solid var(--glass-border);
+      color: white;
+      padding: 3rem 2rem;
+      font-size: 2.5rem;
+      font-weight: 800;
+      text-align: center;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    }
+
+    .game-mid {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 2rem;
+      position: relative;
+    }
+
+    /* Time Bar */
+    .time-bar-container {
+      height: 12px;
+      background: rgba(0, 0, 0, 0.1);
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+    }
+
+    .time-bar {
+      height: 100%;
+      background: var(--k-blue);
+      transition: width 1s linear;
+    }
+
+    .stat-box {
+      font-size: 3rem;
+      font-weight: 900;
+      background: var(--glass-bright);
+      backdrop-filter: blur(10px);
+      color: white;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid var(--glass-border);
+    }
+
+    .formula-box {
+      background: var(--glass-bright);
+      backdrop-filter: blur(20px);
+      border: 2px solid var(--glass-border);
+      color: white;
+      padding: 3rem 5rem;
+      border-radius: 24px;
+      font-size: 3.5rem;
+      font-family: monospace;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+      text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+    }
+
+    .ans-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      padding: 1.5rem;
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 0 0 30px 30px;
+    }
+
+    .ans-btn {
+      padding: 2.5rem;
+      border: none;
+      border-radius: 20px;
+      font-size: 2rem;
+      font-weight: 800;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .ans-btn:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+      filter: brightness(1.1);
+    }
+
+    .ans-btn.red {
+      background: var(--k-red);
+    }
+
+    .ans-btn.blue {
+      background: var(--k-blue);
+    }
+
+    .ans-btn.yellow {
+      background: var(--k-yellow);
+    }
+
+    .ans-btn.green {
+      background: var(--k-green);
+    }
+
+    .shape {
+      font-size: 2.5rem;
+    }
+
+    /* --- ROUND RESULTS --- */
+    .results-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(40px);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .correct-bg {
+      background: radial-gradient(circle, rgba(102, 191, 57, 0.4) 0%, transparent 100%);
+    }
+
+    .incorrect-bg {
+      background: radial-gradient(circle, rgba(255, 51, 85, 0.4) 0%, transparent 100%);
+    }
+
+    .results-title {
+      font-size: 5rem;
+      font-weight: 900;
+      margin-bottom: 2rem;
+    }
+
+    .chart-container {
+      display: flex;
+      align-items: flex-end;
+      gap: 2rem;
+      height: 300px;
+      margin-top: 2rem;
+    }
+
+    .chart-bar {
+      width: 100px;
+      border-radius: 8px 8px 0 0;
+      position: relative;
+      transition: height 1s ease-out;
+    }
+
+    .chart-label {
+      position: absolute;
+      bottom: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-weight: 900;
+      font-size: 1.5rem;
+    }
+
+    .chart-count {
+      position: absolute;
+      top: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-weight: 900;
+      font-size: 1.5rem;
+    }
+
+    .round-lb {
+      width: 100%;
+      max-width: 600px;
+      margin-top: 4rem;
+    }
+
+    .lb-item {
+      background: var(--glass);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      padding: 1.2rem 2rem;
+      border-radius: 16px;
+      margin-bottom: 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.2rem;
+      font-weight: 700;
+      transition: 0.3s;
+    }
+
+    .lb-item:hover {
+      background: var(--glass-bright);
+      transform: translateX(10px);
+      border-color: white;
+    }
+
+    .lb-rank {
+      font-weight: 900;
+      opacity: 0.6;
+      width: 40px;
+      color: var(--accent);
+    }
+
+    /* --- ANIMATIONS --- */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate {
+      animation: fadeIn 0.5s ease forwards;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-10px);
+      }
+    }
+
+    .float {
+      animation: bounce 3s ease-in-out infinite;
+    }
+
+    /* --- RESPONSIVE --- */
+    @media (max-width: 768px) {
+      .ans-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .formula-box {
+        font-size: 2rem;
+        padding: 2rem;
+      }
+
+      .q-header {
+        font-size: 1.5rem;
+      }
+
+      .chart-bar {
+        width: 50px;
+      }
+    }
+  </style>
 </head>
 
-<body class="flex items-center justify-center">
-    <div class="desktop-bg"></div>
+<body>
+  <div id="root"></div>
 
-    <div class="mac-menubar">
-        <div class="menubar-left">
-            <div class="menubar-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="white">
-                    <path
-                        d="M17.05 20.28c-.96.95-2.04 1.72-3.1 1.72-1.01 0-1.42-.55-2.73-.55-1.3 0-1.78.53-2.73.53-1 0-2.14-.77-3.23-1.74-2.22-1.95-3.83-5.59-3.83-8.81 0-3.35 2.11-5.3 4.15-5.3 1.05 0 2.05.68 2.68.68.65 0 1.78-.81 3.03-.81 1.27 0 3.23.63 4.41 2.37-2.61 1.58-2.19 5.38.44 6.64-.61 1.57-1.44 3.09-2.23 4.28zM12.03 7.25c-.21-2.45 1.83-4.59 4.09-4.8 0 0 .52 3.86-3.19 4.8-.31.08-.62.15-.9.15l-.23-.15h.23z" />
-                </svg></div>
-            <div class="menubar-item font-bold">MathMaster</div>
-        </div>
-        <div class="menubar-right text-xs">
-            <div class="menubar-item" id="time-display">00:00</div>
-            <div class="menubar-item">🔋 100%</div>
-            <div class="menubar-item">📶</div>
-        </div>
-    </div>
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
 
-    <div id="root" class="w-full flex items-center justify-center pt-6"></div>
+    const App = () => {
+      // Get URL params for auto-join
+      const urlParams = new URLSearchParams(window.location.search);
+      const paramRoom = urlParams.get('room');
+      const paramHost = urlParams.get('host');
 
-    <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+      const [serverIp, setServerIp] = useState(paramHost || localStorage.getItem('math_server_ip') || 'localhost');
+      const [socket, setSocket] = useState(null);
+      const [page, setPage] = useState('home');
+      const [view, setView] = useState(paramRoom ? 'join' : 'join');
+      const [gameState, setGameState] = useState('idle');
+      const [roomId, setRoomId] = useState(paramRoom || '');
+      const [username, setUsername] = useState('');
+      const [players, setPlayers] = useState([]);
+      const [currentQ, setCurrentQ] = useState(null);
+      const [timeRemaining, setTimeRemaining] = useState(30);
+      const [hasAnswered, setHasAnswered] = useState(false);
+      const [answeredCount, setAnsweredCount] = useState(0);
+      const [totalPlayers, setTotalPlayers] = useState(0);
+      const [roundData, setRoundData] = useState(null);
+      const [finalResults, setFinalResults] = useState([]);
+      const [lang, setLang] = useState('TH');
+      const [lastAnswerCorrect, setLastAnswerCorrect] = useState(null);
 
-        const translations = {
-            TH: {
-                title: "MATH MASTER",
-                subtitle: "PREMIUM LOBBY",
-                start: "เริ่มใช้งาน",
-                nickname: "ใส่ชื่อเล่นของคุณ",
-                hostBtn: "สร้างห้องใหม่ (HOST)",
-                joinBtn: "เข้าร่วม (JOIN)",
-                players: "ผู้เล่นที่จะเข้าร่วม",
-                waiting: "รอผู้เข้าร่วม...",
-                startHost: "เริ่มเกม",
-                question: "ข้อที่",
-                winner: "ผู้ชนะ",
-                scoreboard: "อันดับ",
-                back: "กลับ",
-                pinLabel: "Game PIN:",
-                joinAt: "เข้าร่วมที่ URL นี้"
-            },
-            EN: {
-                title: "MATH MASTER",
-                subtitle: "PREMIUM LOBBY",
-                start: "GET STARTED",
-                nickname: "Enter your nickname",
-                hostBtn: "HOST GAME",
-                joinBtn: "JOIN GAME",
-                players: "Players joining",
-                waiting: "Waiting for participants...",
-                startHost: "Start Game",
-                question: "Question",
-                winner: "Winner",
-                scoreboard: "Scoreboard",
-                back: "Back",
-                pinLabel: "Game PIN:",
-                joinAt: "Join at this URL"
-            }
-        };
+      const [isScanning, setIsScanning] = useState(false);
+      const scannerRef = useRef(null);
 
-        const generateQuestion = (lang) => {
-            const isArithmetic = Math.random() > 0.5;
-            if (isArithmetic) {
-                const a1 = Math.floor(Math.random() * 20) + 1;
-                const d = Math.floor(Math.random() * 8) + 2;
-                const seq = [a1, a1 + d, a1 + d * 2, a1 + d * 3, a1 + d * 4];
-                const missingIdx = Math.floor(Math.random() * 5);
-                const answer = seq[missingIdx];
-                const displaySeq = [...seq]; displaySeq[missingIdx] = '?';
-                const options = new Set([answer]);
-                while (options.size < 4) {
-                    const val = answer + (Math.floor(Math.random() * 10) + 1) * (Math.random() > 0.5 ? 1 : -1);
-                    if (val >= 0) options.add(val);
-                }
-                return { q: displaySeq.join(' , '), options: Array.from(options).sort(() => Math.random() - 0.5), answer };
-            } else {
-                const a1 = Math.floor(Math.random() * 4) + 1;
-                const r = Math.floor(Math.random() * 2) + 2;
-                const seq = [a1, a1 * r, a1 * Math.pow(r, 2), a1 * Math.pow(r, 3)];
-                const missingIdx = Math.floor(Math.random() * 4);
-                const answer = seq[missingIdx];
-                const displaySeq = [...seq]; displaySeq[missingIdx] = '?';
-                const options = new Set([answer]);
-                while (options.size < 4) {
-                    const val = answer + (Math.floor(Math.random() * 10) + 1) * (Math.random() > 0.5 ? 1 : -1);
-                    if (val > 0) options.add(val);
-                }
-                return { q: displaySeq.join(' , '), options: Array.from(options).sort(() => Math.random() - 0.5), answer };
-            }
-        };
+      // Handle Socket connection
+      useEffect(() => {
+        // If we are served via Express, the socket is on the same host/port
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const socketUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+          ? 'http://localhost:3001'
+          : `${window.location.protocol}//${window.location.host}`;
 
-        function App() {
-            const [lang, setLang] = useState('TH');
-            const [view, setView] = useState('landing');
-            const [myPeer, setMyPeer] = useState(null);
-            const [pin, setPin] = useState('');
-            const [isHost, setIsHost] = useState(false);
-            const [username, setUsername] = useState('');
-            const [roomCode, setRoomCode] = useState('');
-            const [players, setPlayers] = useState([]);
-            const [currentQ, setCurrentQ] = useState(null);
-            const [timer, setTimer] = useState(30);
-            const [hasAnswered, setHasAnswered] = useState(false);
-            const [answersCount, setAnswersCount] = useState({ r: 0, t: 0 });
-            const [leaderboard, setLeaderboard] = useState([]);
-            const [winners, setWinners] = useState([]);
-            const [netStatus, setNetStatus] = useState('OFFLINE');
+        const newSocket = io(socketUrl, { transposition: false });
+        setSocket(newSocket);
 
-            const connsRef = useRef([]);
-            const hostConnRef = useRef(null);
-            const gameRef = useRef({ questions: [], idx: 0, players: [], r: 0, tId: null });
+        return () => newSocket.close();
+      }, []);
 
-            const peerConfig = {
-                host: '0.peerjs.com',
-                port: 443,
-                secure: true,
-                config: {
-                    'iceServers': [
-                        { 'urls': 'stun:stun.l.google.com:19302' },
-                        { 'urls': 'stun:stun1.l.google.com:19302' }
-                    ]
-                }
-            };
+      useEffect(() => {
+        if (!socket) return;
 
-            const t = translations[lang];
+        socket.on('server_info', (info) => {
+          if (info.networkIp) {
+            setServerIp(info.networkIp);
+            localStorage.setItem('math_server_ip', info.networkIp);
+          }
+        });
 
-            const cleanupPeer = () => {
-                if (myPeer) {
-                    myPeer.destroy();
-                    setMyPeer(null);
-                }
-                connsRef.current.forEach(c => c.close());
-                connsRef.current = [];
-            };
+        socket.on('room_created', (id) => {
+          setRoomId(id);
+          setGameState('lobby');
+        });
 
-            useEffect(() => {
-                const interval = setInterval(() => {
-                    const now = new Date();
-                    const display = document.getElementById('time-display');
-                    if (display) display.innerText = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
-                }, 1000);
-                return () => { clearInterval(interval); cleanupPeer(); };
-            }, []);
+        socket.on('player_joined', (p) => setPlayers(p));
 
-            const hostBroadcast = (data) => {
-                connsRef.current.forEach(c => { if (c.open) c.send(data); });
-                updateInternal(data);
-            };
+        socket.on('join_success', (data) => {
+          setRoomId(data.roomId);
+          setPlayers(data.players);
+          setGameState('lobby');
+        });
 
-            const startHost = () => {
-                if (!username) return alert('Enter nickname!');
-                cleanupPeer();
-                setNetStatus('CONNECTING...');
-                const randomPin = Math.floor(100000 + Math.random() * 899999).toString();
-                const p = new Peer(`math-${randomPin}`, peerConfig);
+        socket.on('join_error', (err) => alert(err));
 
-                p.on('open', id => {
-                    console.log('Host opened with ID:', id);
-                    setPin(id.replace('math-', '')); setMyPeer(p); setIsHost(true);
-                    setNetStatus('ONLINE');
-                    const initPlayers = [{ id: 'me', name: username, score: 0 }];
-                    gameRef.current.players = initPlayers; setPlayers(initPlayers);
-                    setView('waiting');
-                });
+        socket.on('next_question', (q) => {
+          setCurrentQ(q);
+          setTimeRemaining(30);
+          setHasAnswered(false);
+          setAnsweredCount(0);
+          setTotalPlayers(players.length);
+          setGameState('playing');
+          setRoundData(null);
+          setLastAnswerCorrect(null);
+        });
 
-                p.on('error', err => {
-                    console.error('Peer Error:', err);
-                    setNetStatus('ERROR');
-                    alert('Connection Error: ' + err.type + '\n' + (err.message || 'Please try again.'));
-                    if (err.type === 'id-taken') startHost(); // Retry with new ID
-                });
+        socket.on('player_answered_update', (d) => {
+          setAnsweredCount(d.answeredCount);
+          setTotalPlayers(d.totalPlayers);
+        });
 
-                p.on('connection', c => {
-                    c.on('data', d => {
-                        const g = gameRef.current;
-                        if (d.type === 'join') {
-                            if (!g.players.find(x => x.id === c.peer)) {
-                                g.players.push({ id: c.peer, name: d.name, score: 0 });
-                                setPlayers([...g.players]); hostBroadcast({ type: 'plist', p: g.players });
-                            }
-                        }
-                        if (d.type === 'ans') {
-                            const pObj = g.players.find(x => x.id === c.peer);
-                            if (pObj && !pObj.ans) {
-                                pObj.ans = true; if (d.v === g.questions[g.idx - 1].answer) pObj.score++;
-                                g.r++; hostBroadcast({ type: 'aupd', r: g.r, t: g.players.length });
-                                if (g.r === g.players.length) { clearTimeout(g.tId); showLeaderboard(); }
-                            }
-                        }
-                    });
-                    c.on('open', () => {
-                        connsRef.current.push(c);
-                        c.send({ type: 'plist', p: gameRef.current.players });
-                    });
-                });
-            };
+        socket.on('round_results', (data) => {
+          setRoundData(data);
+          setGameState('round_results');
+        });
 
-            const joinRoom = () => {
-                if (!username || !roomCode) return alert('Name & PIN needed!');
-                cleanupPeer();
-                setNetStatus('CONNECTING...');
-                const p = new Peer(peerConfig); setMyPeer(p);
-                p.on('open', () => {
-                    setNetStatus('JOINING...');
-                    const c = p.connect(`math-${roomCode}`, { reliable: true }); hostConnRef.current = c;
-                    c.on('open', () => {
-                        setNetStatus('CONNECTED');
-                        c.send({ type: 'join', name: username });
-                        setView('waiting');
-                    });
-                    c.on('data', d => updateInternal(d));
-                    c.on('error', err => {
-                        console.error('Connection Error:', err);
-                        alert('Could not join room. Is the PIN correct?');
-                        setNetStatus('ERROR');
-                    });
-                });
-                p.on('error', err => {
-                    console.error('Peer Error:', err);
-                    alert('Peer Error: ' + err.type);
-                    setNetStatus('ERROR');
-                });
-            };
+        socket.on('game_over', (res) => {
+          setFinalResults(res);
+          setGameState('results');
+          confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 } });
+        });
 
-            const updateInternal = d => {
-                if (d.type === 'plist') setPlayers(d.p);
-                if (d.type === 'nextq') { setCurrentQ(d); setView('playing'); setHasAnswered(false); setTimer(30); setAnswersCount({ r: 0, t: d.total_players }); }
-                if (d.type === 'aupd') setAnswersCount({ r: d.r, t: d.t });
-                if (d.type === 'lbd') { setLeaderboard([...d.p]); setView('leaderboard'); }
-                if (d.type === 'gov') { setWinners(d.rank); setView('gameover'); confetti(); }
-            };
+        return () => socket.off();
+      }, [socket, players.length]);
 
-            const startGame = () => {
-                const g = gameRef.current; g.questions = Array.from({ length: 10 }, () => generateQuestion(lang));
-                g.idx = 0; nextQ();
-            };
-
-            const nextQ = () => {
-                const g = gameRef.current;
-                if (g.idx < 10) {
-                    g.r = 0; g.players.forEach(p => p.ans = false);
-                    const qData = g.questions[g.idx];
-                    hostBroadcast({ type: 'nextq', q: qData.q, opts: qData.options, n: g.idx + 1, total_players: g.players.length });
-                    g.idx++; g.tId = setTimeout(showLeaderboard, 30500);
-                } else hostBroadcast({ type: 'gov', rank: [...g.players].sort((a, b) => b.score - a.score) });
-            };
-
-            const showLeaderboard = () => { hostBroadcast({ type: 'lbd', p: [...gameRef.current.players].sort((a, b) => b.score - a.score) }); setTimeout(nextQ, 5000); };
-
-            const submit = v => {
-                setHasAnswered(true);
-                if (isHost) {
-                    const g = gameRef.current; const p = g.players.find(x => x.id === 'me'); p.ans = true;
-                    if (v === g.questions[g.idx - 1].answer) p.score++;
-                    g.r++; hostBroadcast({ type: 'aupd', r: g.r, t: g.players.length });
-                    if (g.r === g.players.length) { clearTimeout(g.tId); showLeaderboard(); }
-                } else {
-                    if (hostConnRef.current && hostConnRef.current.open) hostConnRef.current.send({ type: 'ans', v });
-                }
-            };
-
-            const MacWindow = ({ children, title, dark }) => (
-                <div className="mac-window">
-                    <div className="window-titlebar">
-                        <div className="traffic-lights">
-                            <div className="dot dot-red"></div>
-                            <div className="dot dot-yellow"></div>
-                            <div className="dot dot-green"></div>
-                        </div>
-                        <div className="flex-1 text-center text-xs font-semibold opacity-60">{title || "MathMaster"}</div>
-                        <div className="text-[10px] opacity-40 font-bold">{netStatus}</div>
-                    </div>
-                    <div className={`window-content ${dark ? 'bg-[#46178f]' : ''}`}>
-                        {children}
-                    </div>
-                </div>
-            );
-
-            const QRCodeBox = ({ pin }) => {
-                const qrRef = useRef(null);
-                useEffect(() => {
-                    if (qrRef.current && pin) {
-                        qrRef.current.innerHTML = "";
-                        new QRCode(qrRef.current, {
-                            text: `${window.location.origin}${window.location.pathname}?pin=${pin}`,
-                            width: 100,
-                            height: 100,
-                            colorDark: "#000000",
-                            colorLight: "#ffffff",
-                        });
-                    }
-                }, [pin]);
-                return <div id="qrcode" ref={qrRef} className="bg-white p-2 rounded"></div>;
-            };
-
-            return (
-                <div className="w-full h-full flex items-center justify-center">
-                    {view === 'landing' && (
-                        <MacWindow title="Join Game">
-                            <div className="flex-1 flex flex-col items-center justify-center p-10 bg-[#46178f] text-white">
-                                <div className="text-6xl font-black mb-12">Kahoot!</div>
-                                <div className="w-full max-w-sm space-y-4">
-                                    <input className="mobile-join-input text-black" placeholder="Game PIN" value={roomCode} onChange={e => setRoomCode(e.target.value)} />
-                                    <button onClick={() => setView('nickname_entry')} className="mobile-join-btn w-full !bg-white !text-black">Enter</button>
-                                    <button onClick={() => setView('host_setup')} className="w-full text-xs opacity-60 uppercase font-bold mt-4">Create your own Kahoot! for free</button>
-                                </div>
-                            </div>
-                        </MacWindow>
-                    )}
-
-                    {view === 'nickname_entry' && (
-                        <MacWindow title="Enter Nickname">
-                            <div className="flex-1 flex flex-col items-center justify-center p-10 bg-[#46178f] text-white">
-                                <div className="text-4xl font-black mb-8">Almost there!</div>
-                                <input className="mobile-join-input text-black" placeholder="Nickname" value={username} onChange={e => setUsername(e.target.value)} />
-                                <button onClick={() => { if (roomCode) joinRoom(); else setView('landing'); }} className="mobile-join-btn w-full !bg-green-600">OK, go!</button>
-                            </div>
-                        </MacWindow>
-                    )}
-
-                    {view === 'host_setup' && (
-                        <MacWindow title="Host Setup">
-                            <div className="flex-1 flex flex-col items-center justify-center p-10 bg-white">
-                                <h1 className="text-3xl font-black mb-8 text-[#46178f]">HOST SETUP</h1>
-                                <input className="mobile-join-input border-2 border-[#46178f] text-black mb-4" placeholder="Host Name" value={username} onChange={e => setUsername(e.target.value)} />
-                                <button onClick={startHost} className="mobile-join-btn !bg-[#46178f]">Create Room</button>
-                            </div>
-                        </MacWindow>
-                    )}
-
-                    {view === 'waiting' && (
-                        <MacWindow title="Lobby" dark>
-                            <div className="flex-1 flex flex-col items-center relative h-full">
-                                <div className="w-full flex justify-between items-start p-8">
-                                    <div className="kahoot-pin-box">
-                                        <div className="flex flex-col">
-                                            <span className="pin-text">{t.joinAt}</span>
-                                            <div className="flex items-center">
-                                                <span className="pin-text text-black font-black">{t.pinLabel}</span>
-                                                <span className="pin-number">{pin || roomCode}</span>
-                                            </div>
-                                        </div>
-                                        <QRCodeBox pin={pin || roomCode} />
-                                    </div>
-                                    {isHost && (
-                                        <button onClick={startGame} className="bg-white text-black font-black px-8 py-3 rounded shadow-xl hover:bg-gray-100">Start</button>
-                                    )}
-                                </div>
-
-                                <div className="flex-1 w-full p-10 flex flex-wrap gap-4 content-start justify-center overflow-y-auto pb-32">
-                                    {players.map((p, i) => (
-                                        <div key={i} className="player-tile">
-                                            <span className="text-2xl">👾</span>
-                                            {p.name}
-                                        </div>
-                                    ))}
-                                </div>
-
-                                <div className="lobby-footer">
-                                    <div className="text-3xl font-black">Kahoot!</div>
-                                    <div className="bg-black/40 px-6 py-2 rounded-full font-black text-2xl">
-                                        👥 {players.length}
-                                    </div>
-                                    <div className="text-sm font-bold animate-pulse">{t.waiting}</div>
-                                </div>
-                            </div>
-                        </MacWindow>
-                    )}
-
-                    {view === 'playing' && (
-                        <MacWindow title={`Question ${currentQ.n}`}>
-                            <div className="flex-1 flex flex-col p-8 bg-[#f2f2f2]">
-                                <div className="bg-white p-10 rounded shadow-sm text-center text-4xl font-black mb-10">
-                                    {currentQ.q}
-                                </div>
-                                <div className="grid grid-cols-2 gap-4 flex-1">
-                                    {['#e21b3c', '#1368ce', '#d89e00', '#26890c'].map((color, i) => (
-                                        <button key={i} onClick={() => submit(currentQ.opts[i])} disabled={hasAnswered} className="flex items-center p-6 text-white text-3xl font-black rounded shadow" style={{ backgroundColor: color }}>
-                                            <span className="mr-6">{['▲', '◆', '●', '■'][i]}</span>
-                                            {currentQ.opts[i]}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                        </MacWindow>
-                    )}
-
-                    {view === 'leaderboard' && (
-                        <MacWindow title="Scoreboard" dark>
-                            <div className="flex-1 flex flex-col items-center justify-center p-10 text-white">
-                                <h1 className="text-5xl font-black mb-12 uppercase">{t.scoreboard}</h1>
-                                <div className="w-full max-w-2xl space-y-4">
-                                    {players.sort((a, b) => b.score - a.score).map((p, i) => (
-                                        <div key={i} className="bg-white/10 p-6 rounded flex justify-between items-center text-3xl font-black">
-                                            <span>{i + 1}. {p.name}</span>
-                                            <span>{p.score}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </MacWindow>
-                    )}
-                </div>
-            );
+      // QR Code Generation
+      useEffect(() => {
+        if (gameState === 'lobby' && view === 'host' && qrRef.current && roomId) {
+          const joinUrl = `${window.location.origin}${window.location.pathname}?room=${roomId}&host=${serverIp}`;
+          QRCode.toCanvas(qrRef.current, joinUrl, { width: 200, margin: 2 }, (error) => {
+            if (error) console.error(error);
+          });
         }
+      }, [gameState, view, roomId, serverIp]);
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+      useEffect(() => {
+        let timer;
+        if (gameState === 'playing' && timeRemaining > 0 && !hasAnswered) {
+          timer = setInterval(() => setTimeRemaining(t => t - 1), 1000);
+        }
+        return () => clearInterval(timer);
+      }, [gameState, timeRemaining, hasAnswered]);
+
+      const join = () => { if (username && roomId && socket) socket.emit('join_room', { roomId, username }); };
+      const create = () => {
+        setView('host');
+        if (socket) {
+          socket.emit('create_room');
+        }
+      };
+      const start = () => socket.emit('start_game', roomId);
+      const next = () => socket.emit('next_question_request', roomId);
+      const toggleScanner = () => {
+        if (!isScanning) {
+          setIsScanning(true);
+          setTimeout(() => {
+            scannerRef.current = new Html5Qrcode("reader");
+            scannerRef.current.start(
+              { facingMode: "environment" },
+              { fps: 10, qrbox: { width: 250, height: 250 } },
+              (decodedText) => {
+                // Parse URL
+                try {
+                  const url = new URL(decodedText);
+                  const room = url.searchParams.get('room');
+                  const host = url.searchParams.get('host');
+                  if (room) setRoomId(room);
+                  if (host) setServerIp(host);
+                  stopScanner();
+                } catch (e) {
+                  // If not a URL, maybe it's just the PIN?
+                  setRoomId(decodedText);
+                  stopScanner();
+                }
+              },
+              (errorMessage) => { /* ignore */ }
+            ).catch(err => console.error(err));
+          }, 300);
+        } else {
+          stopScanner();
+        }
+      };
+
+      const stopScanner = () => {
+        if (scannerRef.current) {
+          scannerRef.current.stop().then(() => {
+            scannerRef.current.clear();
+            setIsScanning(false);
+          }).catch(err => {
+            console.error(err);
+            setIsScanning(false);
+          });
+        } else {
+          setIsScanning(false);
+        }
+      };
+
+      const submit = (i) => {
+        setHasAnswered(true);
+        socket.emit('submit_answer', { roomId, answerIndex: i, timeRemaining });
+        setLastAnswerCorrect(i === currentQ.answer);
+      };
+
+      const t = {
+        TH: {
+          home: "หน้าหลัก", about: "เกี่ยวกับเรา", lang: "EN",
+          join: "เข้าร่วมเกม", host: "สร้างห้อง", enter: "ตกลง",
+          pin: "รหัสห้อง (PIN)", nick: "ชื่อเล่น", start: "เริ่มเกม",
+          connecting: "กำลังเชื่อมต่อ...", waiting: "รอโฮสต์เริ่มเกม...",
+          players: "ผู้เล่นคนอื่นๆ", next: "ถัดไป", results: "ผลการจัดอันดับ",
+          correct: "ถูกต้อง!", incorrect: "ผิดนะ!", podium: "ผู้ชนะ"
+        },
+        EN: {
+          home: "Home", about: "About", lang: "TH",
+          join: "Join Game", host: "Create Room", enter: "Enter",
+          pin: "Game PIN", nick: "Nickname", start: "Start",
+          connecting: "Connecting...", waiting: "Waiting for host...",
+          players: "Players", next: "Next", results: "Rankings",
+          correct: "Correct!", incorrect: "Wrong!", podium: "Final Ranking"
+        }
+      }[lang];
+
+      const Navbar = () => (
+        <nav className="navbar">
+          <div className="nav-logo" onClick={() => setPage('home')}>MATH 5/5</div>
+          <div className="nav-links">
+            <div className="nav-item" onClick={() => setPage('home')}>{t.home}</div>
+            <div className="nav-item" onClick={() => setPage('about')}>{t.about}</div>
+            <div className="lang-toggle" onClick={() => setLang(lang === 'TH' ? 'EN' : 'TH')}>{t.lang}</div>
+          </div>
+        </nav>
+      );
+
+      if (page === 'about') return (
+        <div>
+          <Navbar />
+          <div className="page-content animate">
+            <div className="glass-card" style={{ background: 'rgba(255, 255, 255, 0.1)', border: '1px solid rgba(255, 255, 255, 0.2)' }}>
+              <h1 style={{ fontSize: '3rem', marginBottom: '2rem', textShadow: '0 0 20px rgba(255,255,255,0.3)' }}>สมาชิกกลุ่ม Math 5/5</h1>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', textAlign: 'left', maxWidth: '800px', margin: '0 auto' }}>
+                <div className="lb-item">นายกรณ์มิษฐ์ อินดา</div>
+                <div className="lb-item">นายนพกิจ สุรินทร์ต๊ะ</div>
+                <div className="lb-item">นายวุฒิภัทร จ่าหย่อง</div>
+                <div className="lb-item">นายสุริยะทิตย์ สุริยะวงค์</div>
+                <div className="lb-item">นายจตุรงค์ กิจโชคประเสริฐ</div>
+              </div>
+              <button className="k-btn black" style={{ marginTop: '3rem', padding: '1rem 3rem' }} onClick={() => setPage('home')}>ย้อนกลับ</button>
+            </div>
+          </div>
+        </div>
+      );
+
+      return (
+        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+          <Navbar />
+
+          {gameState === 'idle' && (
+            <div className="auth-container animate">
+              <div className="float" style={{ marginBottom: '2rem' }}>
+                <h1 className="hero-title">MATH 5/5</h1>
+                <p style={{ fontSize: '1.2rem', opacity: 0.7, maxWidth: '600px', margin: '0 auto' }}>
+                  {lang === 'TH' ? 'ยกระดับการเรียนรู้คณิตศาสตร์ด้วยแพลตฟอร์มการแข่งขันแบบเรียลไทม์' : 'Accelerate math learning with a real-time collaborative platform.'}
+                </p>
+              </div>
+              <div className="auth-card">
+                {view === 'join' ? (
+                  <>
+                    <div className="input-group">
+                      <span className="input-label">{t.pin}</span>
+                      <input placeholder="1234" value={roomId} onChange={e => setRoomId(e.target.value)} />
+                    </div>
+                    <div className="input-group">
+                      <span className="input-label">{t.nick}</span>
+                      <input placeholder="Ex. John" value={username} onChange={e => setUsername(e.target.value)} />
+                    </div>
+                    <button className="k-btn" onClick={join}>{t.enter}</button>
+                    <button className="k-btn ghost" onClick={toggleScanner}>📷 {lang === 'TH' ? 'สแกนคิวอาร์ (Scan QR)' : 'Scan QR Code'}</button>
+                    <button className="k-btn ghost" onClick={create}>{lang === 'TH' ? 'หรือสร้างห้องใหม่?' : 'Or create a new room?'}</button>
+                  </>
+                ) : (
+                  <>
+                    <h2 style={{ color: 'white', textAlign: 'center', marginBottom: '1rem' }}>{t.host}</h2>
+                    <button className="k-btn" onClick={create}>Generate GAME PIN</button>
+                    <button className="k-btn ghost" onClick={() => setView('join')}>{lang === 'TH' ? 'เข้าร่วมในฐานะผู้เล่น?' : 'Join as a player?'}</button>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
+          {gameState === 'lobby' && (
+            <div className="page-content animate">
+              <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2rem' }}>
+                <div>
+                  <h1 style={{ fontSize: '4rem', marginBottom: '1rem' }}>{view === 'host' ? `GAME PIN: ${roomId}` : t.waiting}</h1>
+                  {view === 'host' && (
+                    <div style={{ background: 'white', padding: '1rem', borderRadius: '12px', display: 'inline-block' }}>
+                      <canvas ref={qrRef}></canvas>
+                      <p style={{ color: 'black', fontWeight: 'bold', marginTop: '10px' }}>สแกนเพื่อเข้าเล่น!</p>
+                    </div>
+                  )}
+                </div>
+
+                {view === 'host' && (
+                  <button className="k-btn" style={{ padding: '1.5rem 5rem' }} onClick={start} disabled={players.length === 0}>{t.start}</button>
+                )}
+                <div style={{ marginTop: '3rem', borderTop: '1px solid var(--glass-border)', paddingTop: '2rem' }}>
+                  <h2>{players.length} {t.players}</h2>
+                  <div className="player-grid">
+                    {players.map(p => <div key={p.id} className="player-tag animate" style={{ fontSize: '1.2rem' }}>{p.username}</div>)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {gameState === 'playing' && (
+            <div className="game-view">
+              <div className="q-header animate">{currentQ?.question}</div>
+              <div className="game-mid">
+                <div className="stat-box float">{timeRemaining}</div>
+                <div className="formula-box animate" style={{ color: '#fff', textShadow: '0 0 10px var(--accent)' }}>
+                  {currentQ?.formula || "aₙ = a₁ + (n-1)d"}
+                </div>
+                <div className="stat-box">{answeredCount}/{totalPlayers}</div>
+                <div className="time-bar-container">
+                  <div className="time-bar" style={{ width: `${(timeRemaining / 30) * 100}%` }}></div>
+                </div>
+              </div>
+              {view === 'join' ? (
+                !hasAnswered ? (
+                  <div className="ans-grid">
+                    <button className="ans-btn red animate" onClick={() => submit(0)}><span className="shape">▲</span> {currentQ?.options[0]}</button>
+                    <button className="ans-btn blue animate" onClick={() => submit(1)}><span className="shape">◆</span> {currentQ?.options[1]}</button>
+                    <button className="ans-btn yellow animate" onClick={() => submit(2)}><span className="shape">●</span> {currentQ?.options[2]}</button>
+                    <button className="ans-btn green animate" onClick={() => submit(3)}><span className="shape">■</span> {currentQ?.options[3]}</button>
+                  </div>
+                ) : (
+                  <div className="results-overlay animate">
+                    <div className="results-title">√ {lang === 'TH' ? 'ได้รับคำตอบแล้ว!' : 'Answer Received!'}</div>
+                    <p style={{ fontSize: '1.5rem' }}>รอผลการจัดอันดับซักครู่...</p>
+                  </div>
+                )
+              ) : (
+                <div style={{ padding: '2rem', background: '#eee', textAlign: 'center' }}>
+                  <h2 style={{ color: '#333' }}>กำลังรอผู้เล่นคนอื่นๆ ตอบคำถาม...</h2>
+                </div>
+              )}
+            </div>
+          )}
+
+          {gameState === 'round_results' && (
+            <div className={`results-overlay animate ${view === 'join' ? (lastAnswerCorrect ? 'correct-bg' : 'incorrect-bg') : ''}`}>
+              {view === 'join' ? (
+                <div style={{ textAlign: 'center' }}>
+                  <div className="results-title">{lastAnswerCorrect ? t.correct : t.incorrect}</div>
+                  <div style={{ background: 'white', color: 'black', padding: '1rem', borderRadius: '10px', marginBottom: '1rem', fontSize: '1.5rem' }}>
+                    เฉลย: {currentQ?.options[roundData?.correctAnswer]}
+                  </div>
+                  <p style={{ fontSize: '2.5rem', fontWeight: 'bold' }}>อันดับปัจจุบัน: {roundData.leaderboard.findIndex(p => p.username === username) + 1}</p>
+                </div>
+              ) : (
+                <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                  <h2 style={{ fontSize: '3rem', marginBottom: '1rem' }}>Question Results</h2>
+                  <div className="chart-container">
+                    {roundData.distribution.map((count, i) => {
+                      const colors = ['#eb670f', '#1368ce', '#d89e00', '#26890c'];
+                      const shapes = ['▲', '◆', '●', '■'];
+                      const max = Math.max(...roundData.distribution) || 1;
+                      const correct = i === roundData.correctAnswer;
+                      return (
+                        <div key={i} className="chart-bar" style={{ height: `${(count / max) * 100}%`, background: colors[i], opacity: correct ? 1 : 0.6, border: correct ? '5px solid white' : 'none' }}>
+                          <span className="chart-count">{count}</span>
+                          <span className="chart-label">{shapes[i]}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="round-lb animate" style={{ marginTop: '5rem' }}>
+                    <h3 style={{ fontSize: '2rem', marginBottom: '1rem' }}>Current Leaderboard</h3>
+                    {roundData.leaderboard.map((p, i) => (
+                      <div key={i} className="lb-item">
+                        <span><span className="lb-rank">{i + 1}</span> {p.username}</span>
+                        <b>{p.score}</b>
+                      </div>
+                    ))}
+                  </div>
+                  <button className="k-btn" style={{ marginTop: '3rem', padding: '1rem 5rem' }} onClick={next}>{t.next}</button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {gameState === 'results' && (
+            <div className="results-overlay animate">
+              <h1 className="float" style={{ fontSize: '6rem' }}>{t.podium}</h1>
+              <div className="podium-container">
+                {finalResults.slice(0, 3).map((p, i) => (
+                  <div key={i} className={`place-${i + 1} animate`} style={{ textAlign: 'center' }}>
+                    <div style={{ fontWeight: 900, fontSize: '1.5rem', marginBottom: '10px' }}>{p.username}</div>
+                    <div className="podium-bar">{i === 0 ? '1st' : i === 1 ? '2nd' : '3rd'}</div>
+                    <div style={{ marginTop: '10px', fontWeight: 'bold' }}>{p.score} pts</div>
+                  </div>
+                ))}
+              </div>
+              <button className="k-btn" style={{ marginTop: '4rem', padding: '1.5rem 6rem' }} onClick={() => window.location.reload()}>Play Again</button>
+            </div>
+          )}
+
+          {isScanning && (
+            <div className="scanner-modal animate">
+              <div className="scanner-box">
+                <div className="scanner-close" onClick={stopScanner}>✕</div>
+                <div id="reader"></div>
+                <p style={{ marginTop: '1rem', textAlign: 'center' }}>สแกน QR Code จากหน้าจอโฮสต์</p>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
 </body>
 
 </html>
