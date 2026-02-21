@@ -310,44 +310,87 @@
             }, []);
 
             const startHost = () => {
+                if (!username) return alert('Enter nickname!');
                 const randomPin = Math.floor(1000 + Math.random() * 9000).toString();
                 const p = new Peer(`math-${randomPin}`);
+
                 p.on('open', id => {
-                    setPin(id.replace('math-', '')); setMyPeer(p); setConnected(true); setIsHost(true);
-                    const initP = [{ id: 'me', name: username, score: 0 }];
-                    gameRef.current.players = initP; setPlayers(initP); setView('waiting');
+                    setPin(id.replace('math-', ''));
+                    setMyPeer(p); setConnected(true); setIsHost(true);
+                    const initPlayers = [{ id: 'me', name: username, score: 0 }];
+                    gameRef.current.players = initPlayers;
+                    setPlayers(initPlayers);
+                    setView('waiting');
                 });
-                p.on('error', err => err.type === 'id-taken' ? startHost() : alert(err.type));
+
+                p.on('error', (err) => {
+                    if (err.type === 'id-taken') startHost();
+                    else alert('Connection Error: ' + err.type);
+                });
+
                 p.on('connection', c => {
-                    c.on('open', () => {
-                        c.on('data', d => {
-                            const g = gameRef.current;
-                            if (d.type === 'join') {
+                    // Listen for data IMMEDIATELY
+                    c.on('data', d => {
+                        const g = gameRef.current;
+                        if (d.type === 'join') {
+                            if (!g.players.find(x => x.id === c.peer)) {
                                 g.players.push({ id: c.peer, name: d.name, score: 0 });
-                                setPlayers([...g.players]); hostBroadcast({ type: 'plist', p: g.players });
+                                setPlayers([...g.players]);
+                                hostBroadcast({ type: 'plist', p: g.players });
                             }
-                            if (d.type === 'ans') {
-                                const p = g.players.find(x => x.id === c.peer);
-                                if (p && !p.ans) {
-                                    p.ans = true; if (d.v === g.questions[g.idx - 1].answer) p.score += 1;
-                                    g.r++; hostBroadcast({ type: 'aupd', r: g.r, t: g.players.length });
-                                    if (g.r === g.players.length) { clearTimeout(g.tId); showLeaderboard(); }
-                                }
+                        }
+                        if (d.type === 'ans') {
+                            const p = g.players.find(x => x.id === c.peer);
+                            if (p && !p.ans) {
+                                p.ans = true; if (d.v === g.questions[g.idx - 1].answer) p.score += 1;
+                                g.r++; hostBroadcast({ type: 'aupd', r: g.r, t: g.players.length });
+                                if (g.r === g.players.length) { clearTimeout(g.tId); showLeaderboard(); }
                             }
-                        });
-                        connsRef.current.push(c);
+                        }
+                    });
+
+                    c.on('open', () => {
+                        if (!connsRef.current.find(x => x.peer === c.peer)) {
+                            connsRef.current.push(c);
+                        }
                         c.send({ type: 'plist', p: gameRef.current.players });
+                    });
+
+                    c.on('close', () => {
+                        const g = gameRef.current;
+                        g.players = g.players.filter(x => x.id !== c.peer);
+                        connsRef.current = connsRef.current.filter(x => x.peer !== c.peer);
+                        setPlayers([...g.players]);
+                        hostBroadcast({ type: 'plist', p: g.players });
                     });
                 });
             };
 
             const joinRoom = () => {
-                const p = new Peer(); setMyPeer(p);
-                p.on('open', () => {
-                    const c = p.connect(`math-${roomCode}`); hostConnRef.current = c;
-                    c.on('open', () => { c.send({ type: 'join', name: username }); setView('waiting'); });
+                if (!username || !roomCode) return alert('Enter nickname and PIN!');
+                const p = new Peer();
+                setMyPeer(p);
+                p.on('open', (id) => {
+                    const c = p.connect(`math-${roomCode}`);
+                    hostConnRef.current = c;
                     c.on('data', d => updateInternal(d));
+
+                    c.on('open', () => {
+                        c.send({ type: 'join', name: username });
+                        setView('waiting');
+                    });
+
+                    c.on('error', err => {
+                        alert('Connect Error! Check PIN.');
+                        setView('home');
+                    });
+
+                    c.on('close', () => {
+                        alert('Lost connection to Host.');
+                        window.location.reload();
+                    });
                 });
+                p.on('error', err => alert('Peer error: ' + err.type));
             };
 
             const hostBroadcast = d => { connsRef.current.forEach(c => c.send(d)); updateInternal(d); };
