@@ -14,7 +14,7 @@
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;800&family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap"
         rel="stylesheet">
     <style>
         :root {
@@ -25,7 +25,7 @@
         }
 
         body {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Kanit', 'Inter', sans-serif;
             background: var(--bg);
             color: white;
             min-height: 100vh;
@@ -124,21 +124,6 @@
             overflow: hidden;
         }
 
-        .btn-premium::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: 0.5s;
-        }
-
-        .btn-premium:hover::before {
-            left: 100%;
-        }
-
         .btn-premium:hover {
             transform: translateY(-4px) scale(1.02);
             box-shadow: 0 10px 30px rgba(99, 102, 241, 0.5);
@@ -158,7 +143,6 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Animations */
         .fade-in {
             animation: fadeIn 0.8s cubic-bezier(0.23, 1, 0.32, 1) forwards;
         }
@@ -197,10 +181,6 @@
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
         }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
     </style>
 </head>
 
@@ -209,71 +189,42 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect, useRef, useMemo } = React;
+        const { useState, useEffect, useRef } = React;
 
         // --- DATA & TRANSLATIONS ---
         const translations = {
             TH: {
-                navHome: "หน้าหลัก",
-                navAbout: "เกี่ยวกับพวกเรา",
-                title: "MATH MASTER",
-                subtitle: "ระบบเกมคณิตศาสตร์พรีเมียม P2P",
-                start: "เริ่มต้นความมันส์",
-                language: "ภาษา TH",
-                nickname: "ระบุชื่อเล่นของคุณ",
-                hostBtn: "เปิดห้องใหม่",
-                joinBtn: "เข้าร่วมเล่น",
-                roomID: "รหัสเข้าห้อง",
-                waiting: "กำลังรอทุกคน...",
-                startHost: "ปล่อยตัว!",
-                copy: "คัดลอกรหัส",
-                players: "นักสู้เลข",
-                question: "โจทย์ที่",
-                answered: "ส่งคำตอบแล้ว",
-                scoreboard: "กระดานเกียรติยศ",
-                nextSub: "สงครามครั้งถัดไปกำลังมา...",
-                champion: "สุดยอดแชมป์เปี้ยน!",
+                navHome: "หน้าหลัก", navAbout: "เกี่ยวกับพวกเรา", title: "MATH MASTER", subtitle: "ระบบเกมคณิตศาสตร์พรีเมียม P2P",
+                start: "เริ่มต้นความมันส์", language: "ภาษา TH", nickname: "ระบุชื่อเล่นของคุณ", hostBtn: "เปิดห้องใหม่",
+                joinBtn: "เข้าร่วมเล่น", roomID: "รหัส PIN (4 หลัก)", waiting: "กำลังรอทุกคน...", startHost: "ปล่อยตัว!",
+                copy: "คัดลอกรหัส", players: "นักสู้เลข", question: "โจทย์ที่", answered: "ส่งคำตอบแล้ว",
+                scoreboard: "กระดานเกียรติยศ", nextSub: "สงครามครั้งถัดไปกำลังมา...", champion: "สุดยอดแชมป์เปี้ยน!",
                 back: "กลับบ้าน",
                 team: [
-                    { name: "นายกรณ์มัฏฐ์ อินดา", role: "Project Manager" },
-                    { name: "นายพนกิจ สุรินทร์ต๊ะ", role: "UI Designer" },
-                    { name: "นายวุฒิภัทร ทาหย่อง", role: "Frontend Dev" },
-                    { name: "นายศิระกฤษ ศิริวงศ์", role: "Backend Architect" },
-                    { name: "นายจตุรงค์ จิติโภคประเสริฐ", role: "Game Engine" }
+                    { name: "นายกรมิษฐิ์ อินดา", role: "Project Manager" },
+                    { name: "นายนพกิจ สุรินทร์ต๊ะ", role: "UI Designer" },
+                    { name: "นายวุฒิภัทร จาหย่อง", role: "Frontend Dev" },
+                    { name: "นายสุริยะทิตย์ สุริยะวงศ์", role: "Backend Architect" },
+                    { name: "นายจตุรงค์ กิจโภคประเสริฐ", role: "Game Engine" }
                 ]
             },
             EN: {
-                navHome: "Home",
-                navAbout: "About Us",
-                title: "MATH MASTER",
-                subtitle: "Premium P2P Mathematical Arena",
-                start: "Enter Arena",
-                language: "Language EN",
-                nickname: "Enter Nickname",
-                hostBtn: "HOST ARENA",
-                joinBtn: "JOIN ARENA",
-                roomID: "Arena ID",
-                waiting: "Waiting for warriors...",
-                startHost: "Unleash!",
-                copy: "Copy ID",
-                players: "Mathematical Warriors",
-                question: "Problem",
-                answered: "Answered",
-                scoreboard: "HALL OF FAME",
-                nextSub: "The next battle approaches...",
-                champion: "ULTIMATE CHAMPION!",
+                navHome: "Home", navAbout: "About Us", title: "MATH MASTER", subtitle: "Premium P2P Mathematical Arena",
+                start: "Enter Arena", language: "Language EN", nickname: "Enter Nickname", hostBtn: "HOST ARENA",
+                joinBtn: "JOIN ARENA", roomID: "PIN Code (4 digits)", waiting: "Waiting for warriors...", startHost: "Unleash!",
+                copy: "Copy PIN", players: "Mathematical Warriors", question: "Problem", answered: "Answered",
+                scoreboard: "HALL OF FAME", nextSub: "The next battle approaches...", champion: "ULTIMATE CHAMPION!",
                 back: "Go Home",
                 team: [
-                    { name: "Mr. Konmat Inda", role: "Project Manager" },
-                    { name: "Mr. Ponkit Surinta", role: "UI Designer" },
-                    { name: "Mr. Wuttipat Tayong", role: "Frontend Dev" },
-                    { name: "Mr. Sirakrit Siriwong", role: "Backend Architect" },
-                    { name: "Mr. Jaturong Jitipokprasert", role: "Game Engine" }
+                    { name: "Mr. Konmanit Inda", role: "Project Manager" },
+                    { name: "Mr. Noppakit Surinta", role: "UI Designer" },
+                    { name: "Mr. Wuttipat Jayong", role: "Frontend Dev" },
+                    { name: "Mr. Suriyatit Suriyawong", role: "Backend Architect" },
+                    { name: "Mr. Jaturong Kitipokprasert", role: "Game Engine" }
                 ]
             }
         };
 
-        // --- MATH ENGINE ---
         const generateQuestion = () => {
             const a1 = Math.floor(Math.random() * 20) + 1;
             const d = Math.floor(Math.random() * 10) + 2;
@@ -282,28 +233,21 @@
             const answer = seq[missingIdx];
             const displaySeq = [...seq];
             displaySeq[missingIdx] = '___';
-
             const options = new Set([answer]);
             while (options.size < 4) {
                 const off = (Math.floor(Math.random() * 10) + 1) * (Math.random() > 0.5 ? 1 : -1);
                 if (answer + off >= 0) options.add(answer + off);
             }
-
-            return {
-                q: `${displaySeq.join(', ')}`,
-                options: Array.from(options).sort(() => Math.random() - 0.5),
-                answer
-            };
+            return { q: `${displaySeq.join(', ')}`, options: Array.from(options).sort(() => Math.random() - 0.5), answer };
         };
 
         function App() {
             const [lang, setLang] = useState(localStorage.getItem('math_lang') || 'TH');
-            const [view, setView] = useState('landing'); // landing, home, about, waiting, playing, leaderboard, gameover
+            const [view, setView] = useState('landing');
             const [myPeer, setMyPeer] = useState(null);
-            const [peerId, setPeerId] = useState('');
+            const [pin, setPin] = useState('');
             const [connected, setConnected] = useState(false);
             const [isHost, setIsHost] = useState(false);
-
             const [username, setUsername] = useState(localStorage.getItem('math_name') || '');
             const [roomCode, setRoomCode] = useState('');
             const [players, setPlayers] = useState([]);
@@ -320,7 +264,6 @@
 
             const t = translations[lang];
 
-            // --- DECORATIVE BACKGROUND ---
             useEffect(() => {
                 const bg = document.getElementById('mesh-bg');
                 const symbols = ['Σ', 'π', '∞', '√', '∫', 'Δ', '+', '×', '÷', '='];
@@ -331,57 +274,74 @@
                     el.style.left = `${Math.random() * 100}%`;
                     el.style.top = `${Math.random() * 100}%`;
                     bg.appendChild(el);
-                    gsap.to(el, {
-                        y: '+=50',
-                        x: '+=30',
-                        rotation: Math.random() * 360,
-                        duration: 10 + Math.random() * 20,
-                        repeat: -1,
-                        yoyo: true,
-                        ease: "sine.inOut"
-                    });
+                    gsap.to(el, { y: '+=50', x: '+=30', rotation: Math.random() * 360, duration: 10 + Math.random() * 20, repeat: -1, yoyo: true, ease: "sine.inOut" });
                 }
             }, []);
 
-            // --- PEER INITIALIZATION ---
-            useEffect(() => {
-                const p = new Peer();
-                p.on('open', id => { setMyPeer(p); setPeerId(id); setConnected(true); });
-                p.on('error', () => setConnected(false));
-                const r = new URLSearchParams(window.location.search).get('room');
-                if (r) { setRoomCode(r); setView('home'); }
-                return () => p.destroy();
-            }, []);
+            // Handle manual PIN hosting
+            const startHost = () => {
+                if (!username) return alert('Enter nickname!');
+                const randomPin = Math.floor(1000 + Math.random() * 9000).toString();
+                const p = new Peer(`math-${randomPin}`);
 
-            useEffect(() => {
-                if (!myPeer || !isHost) return;
-                myPeer.on('connection', c => {
+                p.on('open', id => {
+                    const cleanId = id.replace('math-', '');
+                    setPin(cleanId);
+                    setMyPeer(p);
+                    setConnected(true);
+                    setIsHost(true);
+                    const initPlayers = [{ id: 'me', name: username, score: 0 }];
+                    gameRef.current.players = initPlayers;
+                    setPlayers(initPlayers);
+                    setView('waiting');
+                });
+
+                p.on('error', (err) => {
+                    if (err.type === 'id-taken') startHost(); // Retry with new PIN
+                    else alert('Connection Error: ' + err.type);
+                });
+
+                p.on('connection', c => {
                     c.on('open', () => {
-                        c.on('data', d => handleHostData(c, d));
+                        c.on('data', d => {
+                            const g = gameRef.current;
+                            if (d.type === 'join') {
+                                const p = { id: c.peer, name: d.name, score: 0 };
+                                g.players.push(p);
+                                setPlayers([...g.players]);
+                                hostBroadcast({ type: 'plist', p: g.players });
+                            }
+                            if (d.type === 'ans') {
+                                const p = g.players.find(x => x.id === c.peer);
+                                if (p && !p.ans) {
+                                    p.ans = true;
+                                    // CRITICAL FIX: Ensure currentIdx is correct
+                                    const currentQObj = g.questions[g.idx - 1];
+                                    if (d.v === currentQObj.answer) p.score += 1;
+                                    g.r++;
+                                    hostBroadcast({ type: 'aupd', r: g.r, t: g.players.length });
+                                    if (g.r === g.players.length) { clearTimeout(g.tId); showLeaderboard(); }
+                                }
+                            }
+                        });
                         connsRef.current.push(c);
+                        // Send current list immediately to the newly connected person
+                        c.send({ type: 'plist', p: gameRef.current.players });
                     });
                 });
-            }, [myPeer, isHost]);
+            };
 
-            const handleHostData = (c, d) => {
-                const g = gameRef.current;
-                if (d.type === 'join') {
-                    if (g.players.length >= 10) return c.send({ type: 'err', m: 'Full' });
-                    const p = { id: c.peer, name: d.name, score: 0 };
-                    g.players.push(p);
-                    setPlayers([...g.players]);
-                    hostBroadcast({ type: 'plist', p: g.players });
-                }
-                if (d.type === 'ans') {
-                    const p = g.players.find(x => x.id === c.peer);
-                    if (p && !p.ans) {
-                        p.ans = true;
-                        if (d.v === g.questions[g.idx].answer) p.score += 1;
-                        g.r++;
-                        hostBroadcast({ type: 'aupd', r: g.r, t: g.players.length });
-                        if (g.r === g.players.length) { clearTimeout(g.tId); showLeaderboard(); }
-                    }
-                }
+            const joinRoom = () => {
+                if (!username || !roomCode) return alert('Enter nickname and PIN!');
+                const p = new Peer();
+                setMyPeer(p);
+                p.on('open', () => {
+                    const c = p.connect(`math-${roomCode}`);
+                    hostConnRef.current = c;
+                    c.on('open', () => { c.send({ type: 'join', name: username }); setView('waiting'); });
+                    c.on('data', d => updateInternal(d));
+                    c.on('error', () => alert('Room not found!'));
+                });
             };
 
             const hostBroadcast = (d) => { connsRef.current.forEach(c => c.send(d)); updateInternal(d); };
@@ -390,19 +350,11 @@
                 if (d.type === 'plist') setPlayers(d.p);
                 if (d.type === 'nextq') {
                     setCurrentQ(d); setView('playing'); setHasAnswered(false); setTimer(30);
-                    setAnswersCount({ r: 0, t: gameRef.current.players.length });
+                    setAnswersCount({ r: 0, t: d.total_players || players.length });
                 }
                 if (d.type === 'aupd') setAnswersCount({ r: d.r, t: d.t });
                 if (d.type === 'lbd') { setLeaderboard([...d.p]); setView('leaderboard'); }
                 if (d.type === 'gov') { setWinners(d.rank); setView('gameover'); confetti({ particleCount: 200, spread: 80 }); }
-            };
-
-            const startHost = () => {
-                setIsHost(true);
-                const p = [{ id: 'me', name: username, score: 0 }];
-                gameRef.current.players = p;
-                setPlayers(p);
-                setView('waiting');
             };
 
             const startGameHost = () => {
@@ -417,7 +369,8 @@
                 const g = gameRef.current;
                 if (g.idx < 10) {
                     g.r = 0; g.players.forEach(x => x.ans = false);
-                    hostBroadcast({ type: 'nextq', q: g.questions[g.idx].q, opts: g.questions[g.idx].options, n: g.idx + 1 });
+                    const qData = g.questions[g.idx];
+                    hostBroadcast({ type: 'nextq', q: qData.q, opts: qData.options, n: g.idx + 1, total_players: g.players.length });
                     g.idx++; g.tId = setTimeout(showLeaderboard, 30500);
                 } else {
                     hostBroadcast({ type: 'gov', rank: [...g.players].sort((a, b) => b.score - a.score).slice(0, 5) });
@@ -429,22 +382,22 @@
                 setTimeout(sendNext, 5000);
             };
 
-            const joinRoom = () => {
-                const c = myPeer.connect(roomCode);
-                hostConnRef.current = c;
-                c.on('open', () => { c.send({ type: 'join', name: username }); setView('waiting'); });
-                c.on('data', d => updateInternal(d));
-            };
-
             const submit = (v) => {
                 setHasAnswered(true);
                 if (isHost) {
                     const g = gameRef.current; const p = g.players.find(x => x.id === 'me');
-                    p.ans = true; if (v === g.questions[g.idx - 1].answer) p.score += 1;
+                    p.ans = true;
+                    if (v === g.questions[g.idx - 1].answer) p.score += 1;
                     g.r++; hostBroadcast({ type: 'aupd', r: g.r, t: g.players.length });
                     if (g.r === g.players.length) { clearTimeout(g.tId); showLeaderboard(); }
                 } else hostConnRef.current.send({ type: 'ans', v });
             };
+
+            useEffect(() => {
+                const peerInit = new Peer();
+                peerInit.on('open', () => { setConnected(true); peerInit.destroy(); });
+                return () => peerInit.destroy();
+            }, []);
 
             useEffect(() => {
                 if (view === 'playing' && timer > 0) {
@@ -455,23 +408,19 @@
 
             useEffect(() => { localStorage.setItem('math_name', username); }, [username]);
 
-            // --- UI COMPONENTS ---
             const Navbar = () => (
                 <nav className="glass-nav">
                     <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
                         <div className="flex items-center gap-2 cursor-pointer" onClick={() => setView('landing')}>
-                            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center font-black text-xl shadow-lg border border-white/10">M</div>
-                            <span className="text-xl font-brand font-bold tracking-tighter">MATH<span className="text-indigo-400">MASTER</span></span>
+                            <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center font-black text-xl">M</div>
+                            <span className="text-xl font-brand font-bold">MATH<span className="text-indigo-400">MASTER</span></span>
                         </div>
-                        <div className="hidden md:flex items-center gap-8">
+                        <div className="hidden md:flex gap-8">
                             <span className={`nav-link ${view === 'landing' || view === 'home' ? 'active' : ''}`} onClick={() => setView('landing')}>{t.navHome}</span>
                             <span className={`nav-link ${view === 'about' ? 'active' : ''}`} onClick={() => setView('about')}>{t.navAbout}</span>
                         </div>
-                        <div className="flex items-center gap-4">
-                            <button onClick={() => { setLang(l => l === 'TH' ? 'EN' : 'TH'); localStorage.setItem('math_lang', lang === 'TH' ? 'EN' : 'TH'); }}
-                                className="bg-white/5 border border-white/10 px-4 py-2 rounded-full text-xs font-bold hover:bg-indigo-600/20 transition-all">
-                                {t.language}
-                            </button>
+                        <div className="flex gap-4">
+                            <button onClick={() => setLang(l => l === 'TH' ? 'EN' : 'TH')} className="bg-white/5 border border-white/10 px-4 py-2 rounded-full text-xs font-bold">{t.language}</button>
                             <div className="flex items-center gap-2 px-3 py-1 bg-white/5 rounded-full border border-white/5">
                                 <div className={`w-2 h-2 rounded-full ${connected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
                                 <span className="text-[10px] font-bold opacity-60">P2P</span>
@@ -482,160 +431,104 @@
             );
 
             return (
-                <div className="relative pt-24 pb-12 min-h-screen selection:bg-indigo-500 selection:text-white">
+                <div className="relative pt-24 pb-12 min-h-screen">
                     <Navbar />
-
                     {view === 'landing' && (
                         <main className="max-w-6xl mx-auto px-6 flex flex-col items-center justify-center min-h-[70vh] fade-in text-center">
-                            <div className="hero-glow" style={{ top: '20%', left: '30%' }}></div>
-                            <h1 className="text-7xl md:text-9xl font-brand font-black italic tracking-tighter mb-6 scale-in uppercase">
-                                <span className="bg-gradient-to-b from-white to-white/40 bg-clip-text text-transparent">Challenge</span><br />
-                                <span className="bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">Everything.</span>
-                            </h1>
-                            <p className="text-xl md:text-2xl opacity-40 mb-12 font-light max-w-2xl mx-auto">{t.subtitle}</p>
+                            <h1 className="text-7xl md:text-9xl font-brand font-black mb-6 italic bg-gradient-to-r from-indigo-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent uppercase tracking-tighter shadow-sm">Challenge Everything.</h1>
+                            <p className="text-xl md:text-2xl opacity-40 mb-12 max-w-2xl mx-auto">{t.subtitle}</p>
                             <button onClick={() => setView('home')} className="btn-premium px-12 py-5 rounded-3xl font-brand font-bold text-2xl uppercase tracking-widest">{t.start}</button>
-                            <div className="mt-24 grid grid-cols-2 md:grid-cols-4 gap-8 opacity-20 text-[10px] font-black tracking-[0.3em]">
-                                <span>SERVERLESS P2P</span>
-                                <span>GHSAP ANIMATED</span>
-                                <span>GLASSMORPISM UI</span>
-                                <span>MATH ENGINE 2.0</span>
-                            </div>
                         </main>
                     )}
-
                     {view === 'about' && (
                         <div className="max-w-4xl mx-auto px-6 mt-10 grid md:grid-cols-2 gap-12 items-center fade-in">
-                            <div>
-                                <h1 className="text-6xl font-brand font-black mb-6 italic">{t.navAbout}</h1>
-                                <p className="text-lg opacity-40 mb-8 leading-relaxed">
-                                    We are a team of mathematics and technology enthusiasts dedicated to building the ultimate competitive platform for numerical masters.
-                                </p>
-                                <button onClick={() => setView('landing')} className="text-indigo-400 font-bold hover:underline">← {t.back}</button>
-                            </div>
+                            <div><h1 className="text-6xl font-brand font-black mb-6 italic">{t.navAbout}</h1><button onClick={() => setView('landing')} className="text-indigo-400 font-bold hover:underline">← {t.back}</button></div>
                             <div className="space-y-4">
                                 {t.team.map((m, i) => (
-                                    <div key={i} className="glass-card p-6 flex items-center justify-between group hover:border-indigo-500/50 transition-all duration-500 translate-x-4 opacity-0"
-                                        style={{ animation: `slideRight 0.5s ease-out forwards ${i * 0.1}s` }}>
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-2xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-black group-hover:bg-indigo-500 group-hover:text-white transition-all">{i + 1}</div>
-                                            <div>
-                                                <div className="font-bold text-lg">{m.name}</div>
-                                                <div className="text-[10px] uppercase tracking-widest opacity-40">{m.role}</div>
-                                            </div>
-                                        </div>
+                                    <div key={i} className="glass-card p-6 flex items-center justify-between group hover:border-indigo-500 transition-all">
+                                        <div className="flex items-center gap-4"><div className="w-12 h-12 rounded-2xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 font-black">{i + 1}</div><div><div className="font-bold text-lg">{m.name}</div><div className="text-[10px] uppercase tracking-widest opacity-40">{m.role}</div></div></div>
                                     </div>
                                 ))}
                             </div>
                         </div>
                     )}
-
                     {view === 'home' && (
                         <div className="max-w-md mx-auto px-6 mt-20 fade-in">
-                            <div className="glass-card p-10 text-center shadow-emerald-500/5">
-                                <h2 className="text-3xl font-brand font-black mb-10 tracking-tight italic bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent uppercase">{t.title}</h2>
-                                <input className="w-full bg-white/5 border border-white/10 p-5 rounded-2xl mb-4 outline-none focus:border-indigo-500 transition-all font-bold placeholder:opacity-30"
-                                    placeholder={t.nickname} value={username} onChange={e => setUsername(e.target.value)} />
-                                <button onClick={startHost} disabled={!connected || !username}
-                                    className="w-full btn-premium p-5 rounded-2xl font-bold text-lg mb-6 active:scale-95 disabled:opacity-30 uppercase tracking-widest">{t.hostBtn}</button>
-                                <div className="relative mb-6">
-                                    <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10"></div></div>
-                                    <div className="relative flex justify-center text-[10px] font-black uppercase"><span className="bg-[#0f172a] px-4 opacity-20">OR</span></div>
-                                </div>
-                                <input className="w-full bg-white/5 border border-white/10 p-5 rounded-2xl mb-4 outline-none focus:border-indigo-500 font-bold placeholder:opacity-30 text-center"
-                                    placeholder={t.roomID} value={roomCode} onChange={e => setRoomCode(e.target.value)} />
-                                <button onClick={joinRoom} disabled={!connected || !username || !roomCode}
-                                    className="w-full border border-white/10 p-5 rounded-2xl font-bold hover:bg-white/5 active:scale-95 disabled:opacity-30 uppercase tracking-widest">{t.joinBtn}</button>
+                            <div className="glass-card p-10 text-center shadow-2xl">
+                                <h2 className="text-3xl font-brand font-black mb-10 italic text-cyan-400 uppercase tracking-tighter">{t.title}</h2>
+                                <input className="w-full bg-white/5 border border-white/10 p-5 rounded-2xl mb-4 outline-none focus:border-indigo-500 font-bold" placeholder={t.nickname} value={username} onChange={e => setUsername(e.target.value)} />
+                                <button onClick={startHost} className="w-full btn-premium p-5 rounded-2xl font-bold text-lg mb-6 uppercase tracking-widest">{t.hostBtn}</button>
+                                <div className="relative mb-6 text-[10px] font-black uppercase opacity-20">--- OR ---</div>
+                                <input className="w-full bg-white/5 border border-white/10 p-5 rounded-2xl mb-4 outline-none focus:border-indigo-500 font-bold text-center tracking-[0.5em] text-2xl" placeholder="PIN" value={roomCode} maxLength={4} onChange={e => setRoomCode(e.target.value.replace(/[^0-9]/g, ''))} />
+                                <button onClick={joinRoom} disabled={roomCode.length < 4 || !username} className="w-full border border-white/10 p-5 rounded-2xl font-bold hover:bg-white/5 disabled:opacity-30 uppercase tracking-widest">{t.joinBtn}</button>
                             </div>
                         </div>
                     )}
-
                     {view === 'waiting' && (
                         <div className="max-w-4xl mx-auto px-6 mt-10 grid md:grid-cols-5 gap-8 fade-in">
                             <div className="md:col-span-2 space-y-6">
-                                <div className="glass-card p-8 bg-gradient-to-br from-indigo-500/10 to-transparent">
-                                    <div className="text-[10px] font-black opacity-30 uppercase tracking-[0.2em] mb-4">Arena Code</div>
-                                    <h2 className="text-2xl font-mono font-bold break-all bg-black/20 p-4 rounded-xl mb-4 copy-target">{peerId || roomCode}</h2>
-                                    <button onClick={() => { navigator.clipboard.writeText(peerId || roomCode); alert('Arena ID Copied!'); }}
-                                        className="w-full py-2 rounded-lg bg-indigo-500/10 text-indigo-400 font-bold text-xs uppercase hover:bg-indigo-500 transition-all hover:text-white">{t.copy}</button>
+                                <div className="glass-card p-8 bg-gradient-to-br from-indigo-500/10 to-transparent border-t-8 border-indigo-500">
+                                    <div className="text-[10px] font-black opacity-30 uppercase tracking-[0.2em] mb-4">Arena PIN</div>
+                                    <h2 className="text-7xl font-brand font-bold tracking-[0.2em] text-center mb-6">{pin || roomCode}</h2>
+                                    <button onClick={() => { navigator.clipboard.writeText(pin || roomCode); alert('PIN Copied!'); }} className="w-full py-2 bg-indigo-500/10 text-indigo-400 font-bold text-xs uppercase hover:bg-indigo-500 rounded-lg hover:text-white transition-all">{t.copy}</button>
                                 </div>
-                                {isHost && (
-                                    <button onClick={startGameHost} className="w-full btn-premium py-6 rounded-3xl font-brand font-black text-2xl uppercase tracking-widest animate-pulse border-4 border-indigo-500/20">{t.startHost}</button>
-                                )}
+                                {isHost && <button onClick={startGameHost} className="w-full btn-premium py-6 rounded-3xl font-brand font-black text-2xl uppercase tracking-widest animate-pulse border-4 border-indigo-500/20">{t.startHost}</button>}
                             </div>
                             <div className="md:col-span-3">
                                 <h3 className="text-4xl font-brand font-black italic mb-8 uppercase tracking-tighter">{t.players} · {players.length}</h3>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-2 gap-4">
                                     {players.map((p, i) => (
-                                        <div key={i} className="p-5 glass-card flex items-center gap-4 bg-white/5 border-white/5 slide-up" style={{ animation: `fadeIn 0.5s ease-out forwards ${i * 0.1}s` }}>
+                                        <div key={i} className="p-5 glass-card flex items-center gap-4 bg-white/5 border-white/5 slide-up">
                                             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center font-black text-white">{p.name[0]}</div>
-                                            <span className="font-bold tracking-tight">{p.name} {p.id === 'me' && '🎮'}</span>
+                                            <span className="font-bold tracking-tight">{p.name} {p.id === 'me' && '👑'}</span>
                                         </div>
                                     ))}
                                 </div>
                             </div>
                         </div>
                     )}
-
                     {view === 'playing' && (
                         <div className="max-w-5xl mx-auto px-6 fade-in">
                             <div className="flex justify-between items-end mb-10">
-                                <div>
-                                    <div className="text-[10px] font-black opacity-30 uppercase tracking-[0.3em] mb-2">{t.players} · {username}</div>
-                                    <div className="text-5xl font-brand font-black tracking-tighter italic text-indigo-400 uppercase">{t.question} {currentQ.n}/10</div>
-                                </div>
+                                <div><div className="text-5xl font-brand font-black tracking-tighter italic text-indigo-400 uppercase">{t.question} {currentQ.n}/10</div></div>
                                 <div className="flex gap-4">
-                                    <div className="glass-card px-8 py-4 flex flex-col items-center border-none">
-                                        <div className="text-[10px] font-black opacity-30 mb-1 uppercase">TIMER</div>
-                                        <div className={`text-3xl font-black ${timer < 5 ? 'text-rose-500 animate-ping' : 'text-yellow-400'}`}>{timer}s</div>
-                                    </div>
-                                    <div className="glass-card px-8 py-4 flex flex-col items-center border-none">
-                                        <div className="text-[10px] font-black opacity-30 mb-1 uppercase">{t.answered}</div>
-                                        <div className="text-3xl font-black text-emerald-400">{answersCount.r}/{answersCount.t}</div>
-                                    </div>
+                                    <div className="glass-card px-8 py-4 flex flex-col items-center border-none"><div className="text-[10px] font-black opacity-30 mb-1">TIMER</div><div className={`text-3xl font-black ${timer < 5 ? 'text-rose-500 animate-ping' : 'text-yellow-400'}`}>{timer}s</div></div>
+                                    <div className="glass-card px-8 py-4 flex flex-col items-center border-none"><div className="text-[10px] font-black opacity-30 mb-1">{t.answered}</div><div className="text-3xl font-black text-emerald-400">{answersCount.r}/{answersCount.t}</div></div>
                                 </div>
                             </div>
-                            <div className="glass-card p-16 md:p-24 text-center mb-10 shadow-2xl relative overflow-hidden group">
-                                <div className="absolute top-0 left-0 w-full h-2 bg-indigo-500 group-hover:h-3 transition-all duration-700"></div>
+                            <div className="glass-card p-16 md:p-24 text-center mb-10 shadow-2xl relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-full h-2 bg-indigo-500"></div>
                                 <h2 className="text-7xl md:text-9xl font-brand font-black tracking-tighter italic">{currentQ.q}</h2>
                             </div>
-                            <div className="grid grid-cols-2 gap-6 scale-in">
+                            <div className="grid grid-cols-2 gap-6">
                                 {currentQ.opts.map((o, i) => (
-                                    <button key={i} onClick={() => submit(o)} disabled={hasAnswered}
-                                        className={`option-btn shadow-2xl border-b-8 border-black/20 ${['bg-indigo-600', 'bg-purple-600', 'bg-cyan-600', 'bg-rose-600'][i]} ${hasAnswered ? 'opacity-10 grayscale cursor-not-allowed' : 'hover:-translate-y-2 hover:brightness-110'}`}>{o}</button>
+                                    <button key={i} onClick={() => submit(o)} disabled={hasAnswered} className={`option-btn shadow-2xl border-b-8 border-black/20 ${['bg-indigo-600', 'bg-purple-600', 'bg-cyan-600', 'bg-rose-600'][i]} ${hasAnswered ? 'opacity-10 grayscale' : 'hover:-translate-y-2'}`}>{o}</button>
                                 ))}
                             </div>
                         </div>
                     )}
-
                     {view === 'leaderboard' && (
                         <div className="max-w-2xl mx-auto px-6 text-center fade-in">
                             <h2 className="text-6xl font-brand font-black italic mb-12 tracking-tighter uppercase underline decoration-indigo-500 decoration-8 underline-offset-8">{t.scoreboard}</h2>
                             <div className="space-y-4">
                                 {leaderboard.map((p, i) => (
-                                    <div key={i} className={`p-8 glass-card flex justify-between items-center slide-up ${i === 0 ? 'bg-indigo-500/20 border-indigo-500/50 scale-105 shadow-2xl shadow-indigo-500/10' : ''}`}>
-                                        <div className="flex items-center gap-6">
-                                            <span className="text-5xl font-brand font-black opacity-5 italic">#{i + 1}</span>
-                                            <span className="text-2xl font-black uppercase italic tracking-tighter">{p.name}</span>
-                                        </div>
+                                    <div key={i} className={`p-8 glass-card flex justify-between items-center ${i === 0 ? 'bg-indigo-500/20 border-indigo-500/50 scale-105 shadow-2xl' : ''}`}>
+                                        <div className="flex items-center gap-6"><span className="text-5xl font-brand font-black opacity-5 italic">#{i + 1}</span><span className="text-2xl font-black uppercase italic tracking-tighter">{p.name}</span></div>
                                         <div className="text-4xl font-brand font-black text-indigo-400">{p.score} <span className="text-xs uppercase opacity-20">pts</span></div>
                                     </div>
                                 ))}
                             </div>
-                            <p className="mt-16 text-indigo-400 font-black animate-pulse uppercase tracking-[0.3em] font-brand">{t.nextSub}</p>
                         </div>
                     )}
-
                     {view === 'gameover' && (
-                        <div className="max-w-3xl mx-auto px-6 text-center mt-10 scale-in">
+                        <div className="max-w-3xl mx-auto px-6 text-center mt-10 scale-in shadow-gold shadow-2xl">
                             <div className="text-9xl mb-12 animate-bounce">👑</div>
-                            <h1 className="text-8xl font-brand font-black italic mb-4 tracking-tighter bg-gradient-to-b from-indigo-400 to-purple-500 bg-clip-text text-transparent uppercase">{t.champion}</h1>
-                            <div className="space-y-4 mb-20">
+                            <h1 className="text-8xl font-brand font-black italic mb-4 bg-gradient-to-b from-indigo-400 to-purple-500 bg-clip-text text-transparent uppercase tracking-tighter">{t.champion}</h1>
+                            <div className="space-y-4 mb-20 max-w-md mx-auto">
                                 {winners.map((p, i) => (
-                                    <div key={i} className={`glass-card p-6 flex justify-between items-center transition-all ${i === 0 ? 'scale-110 border-indigo-500 bg-indigo-500/10 mb-8' : 'opacity-60'}`}>
+                                    <div key={i} className={`glass-card p-6 flex justify-between items-center ${i === 0 ? 'scale-110 border-indigo-500 bg-indigo-500/10 mb-8' : 'opacity-60'}`}>
                                         <div className="flex items-center gap-6">
-                                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-brand font-black text-2xl ${i === 0 ? 'bg-indigo-500' : i === 1 ? 'bg-slate-400' : i === 2 ? 'bg-amber-700' : 'bg-white/10'}`}>
-                                                {i === 0 ? '1st' : i === 1 ? '2nd' : i === 2 ? '3rd' : `${i + 1}th`}
-                                            </div>
+                                            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-brand font-black text-2xl ${i === 0 ? 'bg-indigo-500' : 'bg-white/10'}`}>{i + 1}</div>
                                             <span className="text-3xl font-brand font-black uppercase italic tracking-tighter">{p.name}</span>
                                         </div>
                                         <span className="text-4xl font-brand font-black opacity-30">{p.score} pts</span>
